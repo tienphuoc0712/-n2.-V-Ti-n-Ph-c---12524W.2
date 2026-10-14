@@ -9,7 +9,7 @@ Mở `TrangChu.html` bằng trình duyệt (hoặc dùng Live Server của VS Co
 - `js/data.js`: dữ liệu mẫu (5 combo lấy từ trang thực đơn Jollibee, còn lại là dữ liệu minh họa)
 - `js/app.js`: lưu trữ bằng localStorage, giỏ hàng, đơn hàng, tài khoản, header/footer dùng chung
 - `css/style.css`: giao diện đỏ – vàng theo phong cách Jollibee
-- `docs/uml/`: các biểu đồ UML (SVG và PNG)
+- `BieuDo`: các biểu đồ UML (SVG và PNG)
 
 ## Tài khoản thử
 - Quản trị: `admin@jollibee.vn` / `admin123`
