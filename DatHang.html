@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đặt hàng | Jollibee </title>
+<link href="vendor/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<div id="jb-header"></div>
+<div class="page-banner"><h1>Đặt hàng</h1><p>Điền thông tin để hoàn tất đơn</p></div>
+
+<div class="container sec" style="padding-top:28px" id="wrap"><div class="row g-4">
+  <div class="col-lg-7"><div class="box"><h4 style="font-weight:900;color:var(--red)">THÔNG TIN NHẬN HÀNG</h4>
+    <div class="row g-3 mt-1">
+      <div class="col-md-6"><label class="form-label">Họ và tên *</label><input id="name" class="form-control"><div class="invalid-msg" id="e-name"></div></div>
+      <div class="col-md-6"><label class="form-label">Số điện thoại *</label><input id="phone" class="form-control" inputmode="tel" placeholder="0xxxxxxxxx"><div class="invalid-msg" id="e-phone"></div></div>
+      <div class="col-12" id="addrBox"><label class="form-label">Địa chỉ giao hàng *</label><input id="addr" class="form-control"><div class="invalid-msg" id="e-addr"></div></div>
+      <div class="col-12"><label class="form-label">Ghi chú</label><textarea id="note" class="form-control" rows="2"></textarea></div>
+      <div class="col-12"><label class="form-label d-block">Hình thức nhận hàng</label><label class="me-4"><input type="radio" name="mode" value="delivery"> Giao tận nơi</label><label><input type="radio" name="mode" value="pickup"> Đến lấy tại cửa hàng</label></div>
+      <div class="col-12"><label class="form-label d-block">Phương thức thanh toán (mô phỏng)</label>
+        <label class="me-4"><input type="radio" name="pay" value="cod" checked> Tiền mặt khi nhận</label><label class="me-4"><input type="radio" name="pay" value="bank"> Chuyển khoản</label><label><input type="radio" name="pay" value="wallet"> Ví điện tử</label></div>
+    </div></div></div>
+  <div class="col-lg-5"><div class="box"><h5 style="font-weight:900">Đơn hàng của bạn</h5><div id="sumLines" class="mb-2"></div>
+    <div class="sum-line"><span>Tạm tính</span><b id="s1"></b></div><div class="sum-line"><span>Phí giao hàng</span><b id="s2"></b></div><div class="sum-line"><span>Giảm giá</span><b id="s3"></b></div>
+    <div class="sum-line sum-total"><span>Tổng cộng</span><span id="s4"></span></div>
+    <div class="invalid-msg" id="e-all"></div>
+    <button class="btn-jb w-100 mt-3" id="place" style="padding:13px">Xác nhận đặt hàng</button>
+    <a class="btn-line w-100 mt-2 text-center d-block" href="GioHang.html">Quay lại giỏ hàng</a></div></div>
+</div></div>
+
+<div id="jb-footer"></div>
+<script src="vendor/jquery.min.js"></script>
+<script src="vendor/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+JB.layout("GioHang.html");
+
+var me=JB.me();
+if(!me){location.href="DangNhap.html?next=DatHang.html";}
+else if(!JB.cartLines().length){location.href="GioHang.html";}
+else{
+ $("#name").val(me.name);$("#phone").val(me.phone||"");
+ var promo=null;try{var sc=sessionStorage.getItem("jb_code");if(sc){var r0=JB.checkPromo(sc,JB.subtotal());if(r0.ok)promo=r0.promo;}}catch(e){}
+ $("input[name=mode][value="+JB.mode()+"]").prop("checked",true);
+ function draw(){
+  var m=$("input[name=mode]:checked").val();JB.mode(m);$("#addrBox").toggle(m==="delivery");
+  $("#sumLines").html(JB.cartLines().map(function(l){return '<div class="sum-line"><span>'+l.qty+' × '+JB.esc(l.p.name)+'</span><span>'+JB.money(l.sum)+'</span></div>';}).join(''));
+  var t=JB.calc(JB.subtotal(),m,promo);$("#s1").text(JB.money(t.subtotal));$("#s2").text(JB.money(t.ship));$("#s3").text("-"+JB.money(t.discount));$("#s4").text(JB.money(t.total));
+ }
+ $("input[name=mode]").on("change",draw);draw();
+ $("#place").on("click",function(){
+  var ok=true,m=$("input[name=mode]:checked").val();$(".invalid-msg").text("");
+  if(!$("#name").val().trim()){$("#e-name").text("Vui lòng nhập họ tên.");ok=false;}
+  if(!/^0\d{9}$/.test($("#phone").val().trim())){$("#e-phone").text("Số điện thoại gồm 10 số, bắt đầu bằng 0.");ok=false;}  /* BR04 */
+  if(m==="delivery"&&!$("#addr").val().trim()){$("#e-addr").text("Vui lòng nhập địa chỉ giao hàng.");ok=false;}
+  if(!ok)return;
+  var r=JB.createOrder({userId:me.id,name:$("#name").val().trim(),phone:$("#phone").val().trim(),address:m==="delivery"?$("#addr").val().trim():"Nhận tại cửa hàng",note:$("#note").val().trim(),mode:m,pay:$("input[name=pay]:checked").val(),code:promo?promo.code:""});
+  if(!r.ok){$("#e-all").text(r.msg);return;}
+  try{sessionStorage.removeItem("jb_code");}catch(e){}
+  $("#wrap").html('<div class="text-center py-5"><div style="font-size:64px;color:#16a34a">✔</div><h2 style="font-weight:900;color:var(--red)">ĐẶT HÀNG THÀNH CÔNG</h2><p>Mã đơn hàng của bạn: <b>'+r.order.id+'</b><br>Tổng thanh toán: <b>'+JB.money(r.order.total)+'</b><br>Trạng thái: Chờ xác nhận</p><a class="btn-jb" href="DonHang.html">Theo dõi đơn hàng</a> <a class="btn-line" href="ThucDon.html">Tiếp tục mua</a></div>');
+  JB.updateBadge();window.scrollTo(0,0);
+ });
+}
+
+</script>
+</body>
+</html>

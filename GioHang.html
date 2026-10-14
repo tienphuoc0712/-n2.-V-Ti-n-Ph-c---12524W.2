@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Giỏ hàng | Jollibee </title>
+<link href="vendor/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<div id="jb-header"></div>
+<div class="page-banner"><h1>Giỏ hàng</h1><p>Kiểm tra món đã chọn trước khi đặt hàng</p></div>
+
+<div class="container sec" style="padding-top:28px"><div class="row g-4">
+  <div class="col-lg-8"><div class="box"><h4 style="font-weight:900;color:var(--red)">GIỎ HÀNG CỦA BẠN</h4><div id="lines"></div></div></div>
+  <div class="col-lg-4"><div class="box">
+    <h5 style="font-weight:900">Mã giảm giá</h5>
+    <div class="input-group mb-1"><input id="code" class="form-control" placeholder="VD: JOLLY10"><button class="btn-jb" id="ap">Áp dụng</button></div>
+    <div id="pm" class="small mb-3"></div>
+    <div class="mb-2"><label class="me-3"><input type="radio" name="mode" value="delivery"> Giao tận nơi</label><label><input type="radio" name="mode" value="pickup"> Đến lấy</label></div>
+    <div class="sum-line"><span>Tạm tính</span><b id="s1"></b></div>
+    <div class="sum-line"><span>Phí giao hàng</span><b id="s2"></b></div>
+    <div class="sum-line"><span>Giảm giá</span><b id="s3"></b></div>
+    <div class="sum-line sum-total"><span>Tổng cộng</span><span id="s4"></span></div>
+    <button class="btn-jb w-100 mt-3" id="go" style="padding:13px">Tiến hành đặt hàng</button>
+    <a class="btn-line w-100 mt-2 text-center d-block" href="ThucDon.html">Tiếp tục chọn món</a>
+  </div></div>
+</div></div>
+
+<div id="jb-footer"></div>
+<script src="vendor/jquery.min.js"></script>
+<script src="vendor/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+JB.layout("GioHang.html");
+
+var promo=null;
+try{var sc=sessionStorage.getItem("jb_code");if(sc){var r0=JB.checkPromo(sc,JB.subtotal());if(r0.ok){promo=r0.promo;$("#code").val(sc);}}}catch(e){}
+$("input[name=mode][value="+JB.mode()+"]").prop("checked",true);
+function draw(){
+  var ls=JB.cartLines();
+  if(!ls.length){$("#lines").html('<div class="text-center py-5 text-muted">Giỏ hàng đang trống.<br><a class="btn-jb mt-3" href="ThucDon.html">Chọn món ngay</a></div>');$("#go").prop("disabled",true);}
+  else{$("#go").prop("disabled",false);
+   $("#lines").html(ls.map(function(l){return '<div class="cart-row" data-id="'+l.p.id+'"><img src="'+JB.esc(JB.img(l.p))+'" alt="" onerror="this.onerror=null;this.src=JB.img({name:\''+JB.esc(l.p.name).replace(/'/g,"")+'\',cat:\'combo\'})"><div class="flex-grow-1"><b>'+JB.esc(l.p.name)+'</b><div class="text-muted small">'+JB.money(l.p.price)+'</div></div>'+
+    '<div class="qty"><button class="dec">−</button><input class="qi" value="'+l.qty+'"><button class="inc">+</button></div><b style="min-width:92px;text-align:right">'+JB.money(l.sum)+'</b><button class="btn btn-sm text-danger rm" title="Xóa">✕</button></div>';}).join(''));}
+  if(promo){var r=JB.checkPromo(promo.code,JB.subtotal());if(!r.ok){promo=null;$("#pm").html('<span class="text-danger">Mã không còn đủ điều kiện áp dụng.</span>');}}
+  var t=JB.calc(JB.subtotal(),JB.mode(),promo);
+  $("#s1").text(JB.money(t.subtotal));$("#s2").text(JB.money(t.ship));$("#s3").text("-"+JB.money(t.discount));$("#s4").text(JB.money(t.total));
+  if(promo)$("#pm").html('<span class="text-success">Đã áp dụng: '+JB.esc(promo.title)+'</span>');
+}
+$("#lines").on("click",".inc",function(){var id=$(this).closest(".cart-row").data("id"),v=+$(this).siblings(".qi").val()+1;if(v>JB.MAXQ){JB.toast("Tối đa "+JB.MAXQ+" phần mỗi món");return;}JB.cartSet(id,v);draw();})
+ .on("click",".dec",function(){var id=$(this).closest(".cart-row").data("id");JB.cartSet(id,Math.max(1,+$(this).siblings(".qi").val()-1));draw();})
+ .on("change",".qi",function(){JB.cartSet($(this).closest(".cart-row").data("id"),$(this).val());draw();})
+ .on("click",".rm",function(){JB.cartRemove($(this).closest(".cart-row").data("id"));draw();});
+$("input[name=mode]").on("change",function(){JB.mode(this.value);draw();});
+$("#ap").on("click",function(){var r=JB.checkPromo($("#code").val(),JB.subtotal());if(r.ok){promo=r.promo;try{sessionStorage.setItem("jb_code",promo.code);}catch(e){}$("#pm").empty();}else{promo=null;$("#pm").html('<span class="text-danger">'+r.msg+'</span>');}draw();});
+$("#go").on("click",function(){location.href="DatHang.html";});
+draw();
+
+</script>
+</body>
+</html>

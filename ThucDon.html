@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thực đơn | Jollibee </title>
+<link href="vendor/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<div id="jb-header"></div>
+<div class="page-banner"><h1>Thực đơn</h1><p>Giao hàng tận nơi hoặc đặt đến lấy – chọn món ngay</p></div>
+
+<div class="container sec" style="padding-top:26px">
+  <div class="tabs-cat" id="tabs"></div>
+  <div class="row g-2 mb-3">
+    <div class="col-md-6"><input id="q" class="form-control" placeholder="Tìm món ăn theo tên..."></div>
+    <div class="col-6 col-md-3"><select id="price" class="form-select"><option value="">Mọi mức giá</option><option value="0-50000">Dưới 50.000đ</option><option value="50000-100000">50.000đ – 100.000đ</option><option value="100000-9999999">Trên 100.000đ</option></select></div>
+    <div class="col-6 col-md-3"><select id="sort" class="form-select"><option value="">Mặc định</option><option value="asc">Giá tăng dần</option><option value="desc">Giá giảm dần</option><option value="hot">Bán chạy trước</option></select></div>
+  </div>
+  <div class="d-flex justify-content-between align-items-center mb-2"><h3 class="m-0" style="font-weight:900;color:var(--red);text-transform:uppercase" id="ttl"></h3><small id="cnt" class="text-muted"></small></div>
+  <div class="row g-3" id="grid"></div>
+  <div id="empty" class="text-center py-5 text-muted" style="display:none">Không tìm thấy món phù hợp.</div>
+</div>
+
+<div id="jb-footer"></div>
+<script src="vendor/jquery.min.js"></script>
+<script src="vendor/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+JB.layout("ThucDon.html");
+
+var qs=new URLSearchParams(location.search), cat=qs.get("cat")||"", all=JB.products();
+$("#q").val(qs.get("q")||"");
+$("#tabs").html('<a href="ThucDon.html" class="'+(cat?'':'on')+'">Tất cả</a>'+JB.cats().map(function(c){return '<a href="ThucDon.html?cat='+c.slug+'" class="'+(cat===c.slug?'on':'')+'">'+JB.esc(c.name)+'</a>';}).join(''));
+function render(){
+  var q=$("#q").val().trim().toLowerCase(), pr=$("#price").val(), st=$("#sort").val(), list=all.filter(function(p){
+    if(cat&&p.cat!==cat)return false; if(q&&p.name.toLowerCase().indexOf(q)<0)return false;
+    if(pr){var r=pr.split("-");if(p.price<+r[0]||p.price>=+r[1])return false;} return true;});
+  if(st==="asc")list.sort(function(a,b){return a.price-b.price;}); if(st==="desc")list.sort(function(a,b){return b.price-a.price;});
+  if(st==="hot")list.sort(function(a,b){return (b.hot?1:0)-(a.hot?1:0);});
+  $("#ttl").text(cat?JB.cat(cat).name:"Tất cả món"); $("#cnt").text(list.length+" món");
+  $("#grid").html(list.map(JB.card).join('')); $("#empty").toggle(!list.length);
+}
+$("#q").on("input",render); $("#price,#sort").on("change",render); render();
+
+</script>
+</body>
+</html>

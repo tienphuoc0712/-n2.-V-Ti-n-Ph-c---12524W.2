@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Khuyến mãi | Jollibee </title>
+<link href="vendor/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<div id="jb-header"></div>
+<div class="page-banner"><h1>Khuyến mãi</h1><p>Ưu đãi dành riêng cho khách đặt online</p></div>
+
+<div class="container sec"><div class="row g-3" id="g"></div></div>
+
+<div id="jb-footer"></div>
+<script src="vendor/jquery.min.js"></script>
+<script src="vendor/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+JB.layout("KhuyenMai.html");
+
+$("#g").html(JB.promos().map(function(p){return '<div class="col-md-6 col-lg-4"><div class="promo"><div class="ph">'+(p.type==="percent"?"-"+p.value+"%":p.type==="ship"?"FREE":"-"+(p.value/1000)+"K")+'</div><div class="bd"><h4>'+JB.esc(p.title)+'</h4><p>'+JB.esc(p.desc)+'</p><span class="code">'+JB.esc(p.code)+'</span><div class="mt-3"><a class="btn-jb" href="ThucDon.html">Đặt món ngay</a></div></div></div></div>';}).join('')||'<p class="text-center text-muted">Hiện chưa có chương trình khuyến mãi.</p>');
+
+</script>
+</body>
+</html>

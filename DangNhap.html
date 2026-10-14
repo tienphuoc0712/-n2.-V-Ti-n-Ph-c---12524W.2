@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đăng nhập | Jollibee </title>
+<link href="vendor/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<div id="jb-header"></div>
+<div class="page-banner"><h1>Tài khoản</h1><p>Đăng nhập để đặt hàng và theo dõi đơn</p></div>
+
+<div class="container sec" style="max-width:520px"><div class="box">
+  <ul class="nav nav-pills mb-3" id="tab"><li class="nav-item"><a class="nav-link active" data-t="in" href="#">Đăng nhập</a></li><li class="nav-item"><a class="nav-link" data-t="up" href="#">Đăng ký</a></li></ul>
+  <form id="fin" novalidate>
+    <div class="mb-3"><label class="form-label">Email</label><input id="li-e" class="form-control" type="email"></div>
+    <div class="mb-3"><label class="form-label">Mật khẩu</label><input id="li-p" class="form-control" type="password"></div>
+    <div class="invalid-msg mb-2" id="li-err"></div><button class="btn-jb w-100" style="padding:12px">Đăng nhập</button>
+    <p class="small text-muted mt-3 mb-0">Tài khoản thử: admin@jollibee.vn / admin123 (quản trị) · nhanvien@jollibee.vn / nv123456 (nhân viên)</p>
+  </form>
+  <form id="fup" novalidate style="display:none">
+    <div class="mb-3"><label class="form-label">Họ và tên</label><input id="su-n" class="form-control"></div>
+    <div class="mb-3"><label class="form-label">Email</label><input id="su-e" class="form-control" type="email"></div>
+    <div class="mb-3"><label class="form-label">Số điện thoại</label><input id="su-t" class="form-control" inputmode="tel"></div>
+    <div class="mb-3"><label class="form-label">Mật khẩu (từ 6 ký tự)</label><input id="su-p" class="form-control" type="password"></div>
+    <div class="invalid-msg mb-2" id="su-err"></div><button class="btn-jb w-100" style="padding:12px">Tạo tài khoản</button>
+  </form>
+</div></div>
+
+<div id="jb-footer"></div>
+<script src="vendor/jquery.min.js"></script>
+<script src="vendor/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+JB.layout("");
+
+var next=new URLSearchParams(location.search).get("next")||"TrangChu.html";
+if(!/^[\w\-\.%]+\.html/.test(next)||/^[a-z]+:/i.test(next))next="TrangChu.html";
+$("#tab a").on("click",function(e){e.preventDefault();$("#tab a").removeClass("active");$(this).addClass("active");var up=$(this).data("t")==="up";$("#fup").toggle(up);$("#fin").toggle(!up);});
+$("#fin").on("submit",function(e){e.preventDefault();var r=JB.login($("#li-e").val().trim(),$("#li-p").val());if(!r.ok)$("#li-err").text(r.msg);else location.href=next;});
+$("#fup").on("submit",function(e){e.preventDefault();var n=$("#su-n").val().trim(),em=$("#su-e").val().trim(),t=$("#su-t").val().trim(),p=$("#su-p").val(),m="";
+ if(!n)m="Vui lòng nhập họ tên.";else if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))m="Email không hợp lệ.";else if(!/^0\d{9}$/.test(t))m="Số điện thoại gồm 10 số, bắt đầu bằng 0.";else if(p.length<6)m="Mật khẩu tối thiểu 6 ký tự.";
+ if(m){$("#su-err").text(m);return;}var r=JB.register(n,em,t,p);if(!r.ok)$("#su-err").text(r.msg);else location.href=next;});
+
+</script>
+</body>
+</html>

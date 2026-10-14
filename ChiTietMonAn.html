@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chi tiết món | Jollibee </title>
+<link href="vendor/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<div id="jb-header"></div>
+
+
+<div class="container sec" style="padding-top:28px">
+  <div id="detail"></div>
+  <hr class="my-5">
+  <h3 style="font-weight:900;color:var(--red)">ĐÁNH GIÁ & BÌNH LUẬN</h3>
+  <div id="reviewForm" class="box mb-3"></div>
+  <div id="reviews"></div>
+  <h3 class="mt-5" style="font-weight:900;color:var(--red)">MÓN LIÊN QUAN</h3>
+  <div class="row g-3 mt-1" id="related"></div>
+</div>
+
+<div id="jb-footer"></div>
+<script src="vendor/jquery.min.js"></script>
+<script src="vendor/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+JB.layout("ThucDon.html");
+
+var id=new URLSearchParams(location.search).get("id"), p=JB.product(id);
+if(!p){$("#detail").html('<div class="text-center py-5"><h4>Không tìm thấy món ăn.</h4><a class="btn-jb" href="ThucDon.html">Về thực đơn</a></div>');$("#reviewForm,#reviews").remove();}
+else{
+ var c=JB.cat(p.cat);
+ $("#detail").html('<div class="row g-4"><div class="col-md-5"><img class="w-100 rounded-4" style="background:var(--cream)" src="'+JB.esc(JB.img(p))+'" alt="'+JB.esc(p.name)+'" onerror="this.onerror=null;this.src=JB.img({name:this.alt,cat:\'combo\'})"></div>'+
+ '<div class="col-md-7"><nav class="mb-2"><a href="ThucDon.html">Thực đơn</a> / <a href="ThucDon.html?cat='+p.cat+'">'+JB.esc(c.name)+'</a></nav>'+
+ '<h1 style="font-weight:900;text-transform:uppercase">'+JB.esc(p.name)+'</h1><div class="stars" id="avg"></div>'+
+ '<div class="my-3" style="font-size:30px;font-weight:900;color:var(--red)">'+JB.priceText(p)+'</div><p>'+JB.esc(p.desc)+'</p>'+
+ (p.priceMax>p.price?'<p class="text-muted small">Giá thay đổi theo kích cỡ/lựa chọn kèm theo. Giỏ hàng tính theo giá thấp nhất.</p>':'')+
+ '<div class="d-flex flex-wrap align-items-center gap-3 mt-4"><div class="qty"><button id="mi">−</button><input id="qv" value="1" inputmode="numeric"><button id="pl">+</button></div>'+
+ '<button class="btn-jb" id="add">Thêm vào giỏ</button><button class="btn-jb yellow" id="buy">Mua ngay</button></div></div></div>');
+ function q(){var n=parseInt($("#qv").val(),10)||1;return Math.max(1,Math.min(JB.MAXQ,n));}
+ $("#mi").on("click",function(){$("#qv").val(Math.max(1,q()-1));}); $("#pl").on("click",function(){$("#qv").val(Math.min(JB.MAXQ,q()+1));});
+ $("#qv").on("change",function(){$(this).val(q());});
+ $("#add").on("click",function(){var r=JB.cartAdd(p.id,q());JB.toast(r.ok?"Đã thêm vào giỏ hàng":r.msg);});
+ $("#buy").on("click",function(){var r=JB.cartAdd(p.id,q());if(r.ok)location.href="GioHang.html";else JB.toast(r.msg);});
+ function stars(n){var s="";for(var i=1;i<=5;i++)s+=i<=Math.round(n)?"★":"☆";return s;}
+ function loadRev(){
+  var rs=JB.reviews(p.id), avg=rs.length?rs.reduce(function(s,r){return s+r.stars;},0)/rs.length:0;
+  $("#avg").html(rs.length?stars(avg)+' <small class="text-muted">('+avg.toFixed(1)+' · '+rs.length+' đánh giá)</small>':'<small class="text-muted">Chưa có đánh giá</small>');
+  $("#reviews").html(rs.length?rs.map(function(r){return '<div class="box mb-2"><b>'+JB.esc(r.user)+'</b> <span class="stars">'+stars(r.stars)+'</span> <small class="text-muted">'+new Date(r.date).toLocaleDateString("vi-VN")+'</small><div>'+JB.esc(r.text)+'</div></div>';}).join(''):'<p class="text-muted">Hãy là người đầu tiên đánh giá món này.</p>');
+ }
+ var me=JB.me();
+ if(!me)$("#reviewForm").html('Vui lòng <a href="DangNhap.html?next=ChiTietMonAn.html%3Fid%3D'+p.id+'"><b>đăng nhập</b></a> để đánh giá.');
+ else if(!JB.hasBought(me.id,p.id))$("#reviewForm").html('<span class="text-muted">Chỉ khách đã nhận món này mới có thể đánh giá.</span>');
+ else{$("#reviewForm").html('<select id="rs" class="form-select mb-2" style="max-width:160px"><option value="5">5 sao</option><option value="4">4 sao</option><option value="3">3 sao</option><option value="2">2 sao</option><option value="1">1 sao</option></select><textarea id="rt" class="form-control mb-2" rows="2" placeholder="Chia sẻ cảm nhận của bạn"></textarea><div class="invalid-msg" id="re"></div><button class="btn-jb" id="rb">Gửi đánh giá</button>');
+  $("#rb").on("click",function(){var t=$("#rt").val().trim();if(!t){$("#re").text("Vui lòng nhập nội dung.");return;}
+   var all=JB.allReviews();all.unshift({pid:p.id,user:me.name,stars:+$("#rs").val(),text:t,date:new Date().toISOString()});JB.saveReviews(all);$("#rt").val("");$("#re").text("");loadRev();JB.toast("Cảm ơn bạn đã đánh giá!");});}
+ loadRev();
+ $("#related").html(JB.products().filter(function(x){return x.cat===p.cat&&x.id!==p.id;}).slice(0,4).map(JB.card).join('')||'<p class="text-muted">Chưa có món liên quan.</p>');
+}
+
+</script>
+</body>
+</html>

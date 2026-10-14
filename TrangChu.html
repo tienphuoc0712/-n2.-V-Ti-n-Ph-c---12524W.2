@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trang chủ | Jollibee </title>
+<link href="vendor/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<div id="jb-header"></div>
+
+
+<section class="jb-hero">
+  <div id="heroCar" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4500">
+    <div class="carousel-inner" id="heroItems"></div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCar" data-bs-slide="prev"><span class="jb-arrow">&#8249;</span></button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCar" data-bs-slide="next"><span class="jb-arrow">&#8250;</span></button>
+    <div class="carousel-indicators" id="heroDots"></div>
+  </div>
+</section>
+<div class="jb-mode"><button id="mDel">Giao hàng tận nơi</button><button id="mPick">Đặt đến lấy</button></div>
+<section class="sec"><div class="container">
+  <h2 class="sec-title">Thực đơn</h2><p class="sec-sub">Chọn nhóm món bạn yêu thích</p>
+  <div class="cat-strip" id="catStrip"></div>
+</div></section>
+<section class="sec" style="background:var(--cream)"><div class="container">
+  <h2 class="sec-title">Món bán chạy</h2><p class="sec-sub">Được nhiều khách hàng lựa chọn nhất</p>
+  <div class="row g-3" id="hotGrid"></div>
+  <div class="text-center mt-4"><a class="btn-jb" href="ThucDon.html">Xem toàn bộ thực đơn</a></div>
+</div></section>
+<section class="sec"><div class="container">
+  <h2 class="sec-title">Khuyến mãi</h2><p class="sec-sub">Nhập mã tại bước giỏ hàng để nhận ưu đãi</p>
+  <div class="row g-3" id="promoGrid"></div>
+</div></section>
+<section class="sec" style="background:#fafafa"><div class="container">
+  <h2 class="sec-title">Tin tức</h2><p class="sec-sub">Cập nhật mới nhất từ Jollibee</p>
+  <div class="row g-3" id="newsGrid"></div>
+</div></section>
+
+<div id="jb-footer"></div>
+<script src="vendor/jquery.min.js"></script>
+<script src="vendor/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+JB.layout("TrangChu.html");
+
+var D=JB.D;
+$("#heroItems").html(D.banners.map(function(b,i){return '<div class="carousel-item'+(i?'':' active')+'"><div class="bn"><img src="'+b+'" alt="" onerror="this.style.display=\'none\'"></div></div>';}).join(''));
+$("#heroDots").html(D.banners.map(function(b,i){return '<button type="button" data-bs-target="#heroCar" data-bs-slide-to="'+i+'"'+(i?'':' class="active"')+'></button>';}).join(''));
+$("#catStrip").html(D.categories.map(function(c){return '<a class="cat-chip" href="ThucDon.html?cat='+c.slug+'"><img src="'+c.img+'" alt="" onerror="this.style.visibility=\'hidden\'">'+JB.esc(c.name)+'</a>';}).join(''));
+$("#hotGrid").html(JB.products().filter(function(p){return p.hot;}).slice(0,8).map(JB.card).join(''));
+$("#promoGrid").html(JB.promos().map(function(p){return '<div class="col-md-4"><div class="promo"><div class="ph">'+(p.type==="percent"?"-"+p.value+"%":p.type==="ship"?"FREE":"-"+(p.value/1000)+"K")+'</div><div class="bd"><h4>'+JB.esc(p.title)+'</h4><p>'+JB.esc(p.desc)+'</p><span class="code">'+JB.esc(p.code)+'</span></div></div></div>';}).join(''));
+$("#newsGrid").html(D.news.slice(0,3).map(function(n){return '<div class="col-md-4"><div class="news-card"><div class="ph">J</div><div class="bd"><small>'+n.date+'</small><h5 class="mt-1">'+JB.esc(n.title)+'</h5><p>'+JB.esc(n.body)+'</p></div></div></div>';}).join(''));
+function setMode(m){JB.mode(m);$("#mDel").toggleClass("on",m==="delivery");$("#mPick").toggleClass("on",m==="pickup");}
+$("#mDel").on("click",function(){setMode("delivery");location.href="ThucDon.html";});
+$("#mPick").on("click",function(){setMode("pickup");location.href="ThucDon.html";});
+setMode(JB.mode());
+
+</script>
+</body>
+</html>

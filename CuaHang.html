@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cửa hàng | Jollibee </title>
+<link href="vendor/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<div id="jb-header"></div>
+<div class="page-banner"><h1>Cửa hàng</h1><p>Tìm cửa hàng gần bạn</p></div>
+
+<div class="container sec">
+  <div class="row g-2 mb-3"><div class="col-md-4"><select id="city" class="form-select"><option value="">Tất cả tỉnh/thành</option></select></div></div>
+  <div class="row g-3" id="g"></div>
+  <p class="small text-muted mt-3">Danh sách cửa hàng chỉ mang tính minh họa cho đồ án.</p>
+</div>
+
+<div id="jb-footer"></div>
+<script src="vendor/jquery.min.js"></script>
+<script src="vendor/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+JB.layout("CuaHang.html");
+
+var cities=[];JB.D.stores.forEach(function(s){if(cities.indexOf(s.city)<0)cities.push(s.city);});
+$("#city").append(cities.map(function(c){return '<option>'+c+'</option>';}).join(''));
+function draw(){var c=$("#city").val();$("#g").html(JB.D.stores.filter(function(s){return !c||s.city===c;}).map(function(s){return '<div class="col-md-6 col-lg-4"><div class="box"><h5 style="font-weight:900;color:var(--red)">'+JB.esc(s.name)+'</h5><div>'+JB.esc(s.city)+'</div><div class="text-muted small">Giờ mở cửa: '+s.hours+'</div></div></div>';}).join(''));}
+$("#city").on("change",draw);draw();
+
+</script>
+</body>
+</html>
