@@ -162,14 +162,14 @@
     }).join('');
     var acct = me ? '<a href="DonHang.html">' + esc(me.name) + '</a><span class="sep"></span>' + (me.role !== 'customer' ? '<a href="admin/index.html">QUẢN TRỊ</a><span class="sep"></span>' : '') + '<a href="#" id="jb-logout">ĐĂNG XUẤT</a>' : '<a href="DangNhap.html">ĐĂNG KÝ / ĐĂNG NHẬP</a>';
     $('#jb-header').html('<div class="jb-top"><a href="#">VN</a><span class="sep"></span><a href="#">EN</a><span class="sep"></span>' + acct + '</div>' +
-      '<header class="jb-head"><div class="jb-head-in"><a class="jb-logo" href="TrangChu.html">Jollibee<small>Học tập – Đồ án 2</small></a>' +
+      '<header class="jb-head"><div class="jb-head-in"><a class="jb-logo" href="TrangChu.html">Jollibee<small>ĐỒ ÁN 2 - Vũ Tiến Phước</small></a>' +
       '<button class="jb-burger" aria-label="Menu">&#9776;</button><ul class="jb-nav">' + li + '</ul>' +
       '<div class="jb-right"><a class="jb-cart" href="GioHang.html">Giỏ hàng <b class="jb-cart-n">0</b></a></div></div></header>');
     $('#jb-footer').html('<footer class="jb-foot"><div class="container"><div class="row g-4"><div class="col-md-5"><h5>Đồ án 2 – Thiết kế web cơ bản</h5>' +
-      '<p>Website bán đồ ăn nhanh mô phỏng theo giao diện Jollibee Việt Nam, xây dựng cho mục đích học tập.</p></div>' +
+      '<p>Website bán đồ ăn nhanh mô phỏng theo giao diện Jollibee Việt Nam.</p></div>' +
       '<div class="col-6 col-md-3"><h5>Liên kết</h5><div><a href="ThucDon.html">Thực đơn</a></div><div><a href="KhuyenMai.html">Khuyến mãi</a></div><div><a href="CuaHang.html">Cửa hàng</a></div><div><a href="DonHang.html">Đơn hàng của tôi</a></div></div>' +
       '<div class="col-6 col-md-4"><h5>Hỗ trợ</h5><div><a href="LienHe.html">Liên hệ</a></div><div><a href="TinTuc.html">Tin tức</a></div><div><small>Hotline minh họa: 1900 xxxx</small></div></div></div>' +
-      '<div class="sub">Sản phẩm học tập, không phải trang bán hàng chính thức. Thương hiệu và hình ảnh thuộc về chủ sở hữu.</div></div></footer><a class="chat-fab" href="LienHe.html">Trò chuyện cùng Jolly</a>');
+      '<div class="sub">Sinh viên thực hiện: Vũ Tiến Phước - Trường Đại học Công nghệ Kỹ thuật Hưng Yên.</div></div></footer><a class="chat-fab" href="LienHe.html">Trò chuyện cùng Jolly</a>');
     $('.jb-burger').on('click', function () { $('.jb-nav').toggleClass('open'); });
     $('#jb-logout').on('click', function (e) { e.preventDefault(); JB.logout(); location.href = 'TrangChu.html'; });
     JB.updateBadge();
