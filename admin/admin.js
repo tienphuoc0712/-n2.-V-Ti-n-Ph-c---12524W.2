@@ -25,7 +25,7 @@
     done.forEach(function (o) { o.items.forEach(function (it) { top[it.name] = (top[it.name] || 0) + it.qty; }); });
     var tl = Object.keys(top).map(function (k) { return [k, top[k]]; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 5);
     $('#view').html('<div class="row g-3 mb-3">' +
-      [['Doanh thu (đơn đã giao)', money(rev)], ['Đơn mới chờ xác nhận', os.filter(function (o) { return o.status === 'cho_xac_nhan'; }).length], ['Món đang bán', JB.products().length], ['Khách hàng', JB.users().filter(function (u) { return u.role === 'customer'; }).length]]
+      [['Doanh thu (đơn đã giao)', money(rev)], ['Đơn hàng mới chờ xác nhận', os.filter(function (o) { return o.status === 'cho_xac_nhan'; }).length], ['Món đang bán', JB.products().length], ['Khách hàng', JB.users().filter(function (u) { return u.role === 'customer'; }).length]]
         .map(function (s) { return '<div class="col-6 col-lg-3"><div class="stat"><small>' + s[0] + '</small><b>' + s[1] + '</b></div></div>'; }).join('') + '</div>' +
       '<div class="row g-3"><div class="col-lg-7"><div class="box"><h6 class="fw-bold">Doanh thu 7 ngày gần nhất</h6><div class="d-flex align-items-end gap-2" style="height:180px">' +
       byDay.map(function (v, k) { return '<div class="flex-fill text-center small"><div class="bar" title="' + money(v) + '" style="height:' + Math.round(v / mx * 150) + 'px;min-height:2px"></div>' + days[k].slice(5) + '</div>'; }).join('') + '</div></div></div>' +
@@ -37,15 +37,15 @@
   V.orders = function () {
     var os = JB.orders().filter(function (o) { return !ofilter || o.status === ofilter; });
     $('#view').html('<div class="mb-3"><select id="of" class="form-select" style="max-width:240px"><option value="">Tất cả trạng thái</option>' + Object.keys(JB.STATUS).map(function (k) { return '<option value="' + k + '"' + (k === ofilter ? ' selected' : '') + '>' + JB.STATUS[k] + '</option>'; }).join('') + '</select></div>' +
-      '<div class="tbl"><table class="table mb-0 align-middle"><thead><tr><th>Mã đơn</th><th>Ngày đặt</th><th>Khách hàng</th><th>Tổng tiền</th><th>Trạng thái</th><th></th></tr></thead><tbody>' +
-      (os.map(function (o) { return '<tr><td><b>' + o.id + '</b></td><td>' + new Date(o.date).toLocaleString('vi-VN') + '</td><td>' + esc(o.name) + '<div class="small text-muted">' + esc(o.phone) + '</div></td><td>' + money(o.total) + '</td><td><span class="status st-' + o.status + '">' + JB.STATUS[o.status] + '</span></td><td><button class="btn-line vw" data-id="' + o.id + '">Chi tiết</button></td></tr>'; }).join('') || '<tr><td colspan="6" class="text-center text-muted py-4">Chưa có đơn hàng.</td></tr>') + '</tbody></table></div>');
+      '<div class="tbl"><table class="table mb-0 align-middle"><thead><tr><th>Mã đơn hàng</th><th>Ngày đặt hàng</th><th>Khách hàng</th><th>Tổng tiền</th><th>Trạng thái</th><th></th></tr></thead><tbody>' +
+      (os.map(function (o) { return '<tr><td><b>' + o.id + '</b></td><td>' + new Date(o.date).toLocaleString('vi-VN') + '</td><td>' + esc(o.name) + '<div class="small text-muted">' + esc(o.phone) + '</div></td><td>' + money(o.total) + '</td><td><span class="status st-' + o.status + '">' + JB.STATUS[o.status] + '</span></td><td><button class="btn-line vw" data-id="' + o.id + '">Chi tiết đơn hàng</button></td></tr>'; }).join('') || '<tr><td colspan="6" class="text-center text-muted py-4">Chưa có đơn hàng.</td></tr>') + '</tbody></table></div>');
     $('#of').on('change', function () { ofilter = this.value; V.orders(); });
   };
   $('#view').on('click', '.vw', function () { openOrder($(this).data('id')); });
   function openOrder(id) {
     var o = JB.orders().filter(function (x) { return x.id === id; })[0]; if (!o) return;
     $('#omT').text('Đơn hàng #' + o.id);
-    $('#omB').html('<p><span class="status st-' + o.status + '">' + JB.STATUS[o.status] + '</span> · ' + (o.mode === 'pickup' ? 'Đến lấy' : 'Giao tận nơi') + ' · ' + ({ cod: 'Tiền mặt', bank: 'Chuyển khoản', wallet: 'Ví điện tử' }[o.pay] || o.pay) + '</p>' +
+    $('#omB').html('<p><span class="status st-' + o.status + '">' + JB.STATUS[o.status] + '</span> · ' + (o.mode === 'pickup' ? 'Đến lấy' : 'Giao hàng tận nơi') + ' · ' + ({ cod: 'Tiền mặt', bank: 'Chuyển khoản', wallet: 'Ví điện tử' }[o.pay] || o.pay) + '</p>' +
       '<p>Người nhận: <b>' + esc(o.name) + '</b> – ' + esc(o.phone) + '<br>Địa chỉ: ' + esc(o.address) + (o.note ? '<br>Ghi chú: ' + esc(o.note) : '') + '</p>' +
       o.items.map(function (i) { return '<div class="sum-line"><span>' + i.qty + ' × ' + esc(i.name) + '</span><span>' + money(i.price * i.qty) + '</span></div>'; }).join('') +
       '<div class="sum-line"><span>Phí giao hàng</span><span>' + money(o.ship) + '</span></div><div class="sum-line"><span>Giảm giá' + (o.code ? ' (' + esc(o.code) + ')' : '') + '</span><span>-' + money(o.discount) + '</span></div><div class="sum-line sum-total"><span>Tổng cộng</span><span>' + money(o.total) + '</span></div>' +
