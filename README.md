@@ -1,6 +1,4 @@
 # Website bán đồ ăn nhanh Jollibee (Đồ án 2 – Thiết kế web cơ bản)
-
-Chỉ dùng HTML + CSS + JavaScript thuần (không Bootstrap, không jQuery, không cần cài đặt hay máy chủ).
 Mở `html/trangchu.html` bằng trình duyệt (hoặc `index.html`, hoặc Live Server của VS Code).
 
 ## Cấu trúc (mỗi trang có 1 file html + 1 file css + 1 file js riêng)
