@@ -1,29 +1,77 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Khuyến mãi | Jollibee </title>
-<link href="vendor/bootstrap.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
-<link href="css/style.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khuyến mãi | Jollibee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/script.js"></script>
 </head>
-<body>
-<div id="jb-header"></div>
-<div class="page-banner"><h1>Khuyến mãi</h1><p>Ưu đãi dành riêng cho khách đặt online</p></div>
+<body onload="capNhatSoLuong()">
 
-<div class="container sec"><div class="row g-3" id="g"></div></div>
+    <!-- PHẦN ĐẦU TRANG: logo + menu (trang nào cũng giống nhau) -->
+    <header>
+        <!-- Thanh vàng trên cùng -->
+        <div class="thanh-tren">
+            <a href="#">VN</a> | <a href="#">EN</a> |
+            <span id="taiKhoan"><a href="DangNhap.html">ĐĂNG KÝ / ĐĂNG NHẬP</a></span>
+        </div>
+        <!-- Logo + menu + giỏ hàng -->
+        <div class="dau-trang">
+            <a class="logo" href="TrangChu.html">Jollibee<small>Học tập – Đồ án 2</small></a>
+            <nav>
+                <a href="TrangChu.html">Trang chủ</a>
+                <a href="ThucDon.html">Thực đơn</a>
+                <a href="KhuyenMai.html" class="active">Khuyến mãi</a>
+                <a href="DichVu.html">Dịch vụ</a>
+                <a href="TinTuc.html">Tin tức</a>
+                <a href="CuaHang.html">Cửa hàng</a>
+                <a href="LienHe.html">Liên hệ</a>
+                <a href="DonHang.html">Đơn hàng</a>
+            </nav>
+            <a class="gio-hang" href="GioHang.html">Giỏ hàng <b id="soLuongGio">0</b></a>
+        </div>
+    </header>
 
-<div id="jb-footer"></div>
-<script src="vendor/jquery.min.js"></script>
-<script src="vendor/bootstrap.bundle.min.js"></script>
-<script src="js/data.js"></script>
-<script src="js/app.js"></script>
-<script>
-JB.layout("KhuyenMai.html");
+    <!-- PHẦN NỘI DUNG CHÍNH CỦA TRANG -->
+    <main class="khung">
 
-$("#g").html(JB.promos().map(function(p){return '<div class="col-md-6 col-lg-4"><div class="promo"><div class="ph">'+(p.type==="percent"?"-"+p.value+"%":p.type==="ship"?"FREE":"-"+(p.value/1000)+"K")+'</div><div class="bd"><h4>'+JB.esc(p.title)+'</h4><p>'+JB.esc(p.desc)+'</p><span class="code">'+JB.esc(p.code)+'</span><div class="mt-3"><a class="btn-jb" href="ThucDon.html">Đặt món ngay</a></div></div></div></div>';}).join('')||'<p class="text-center text-muted">Hiện chưa có chương trình khuyến mãi.</p>');
+        <h1>Khuyến mãi</h1>
+        <div class="luoi">
+            <div class="the"><div class="anh">🏷️</div><h3>JOLLY10</h3><p>Giảm 10% cho đơn từ 100.000đ</p></div>
+            <div class="the"><div class="anh">🚚</div><h3>FREESHIP</h3><p>Miễn phí giao hàng cho đơn từ 150.000đ</p></div>
+            <div class="the"><div class="anh">🎁</div><h3>WELCOME20</h3><p>Giảm 20% cho khách hàng mới</p></div>
+        </div>
 
-</script>
+    </main>
+
+    <!-- PHẦN CUỐI TRANG -->
+    <footer>
+        <div class="khung">
+            <div class="cot-chan">
+                <div>
+                    <h5>Đồ án 2 – Thiết kế web cơ bản</h5>
+                    <p>Website bán đồ ăn nhanh mô phỏng theo giao diện Jollibee Việt Nam, xây dựng cho mục đích học tập.</p>
+                </div>
+                <div>
+                    <h5>Liên kết</h5>
+                    <div><a href="ThucDon.html">Thực đơn</a></div>
+                    <div><a href="KhuyenMai.html">Khuyến mãi</a></div>
+                    <div><a href="CuaHang.html">Cửa hàng</a></div>
+                    <div><a href="DonHang.html">Đơn hàng của tôi</a></div>
+                </div>
+                <div>
+                    <h5>Hỗ trợ</h5>
+                    <div><a href="LienHe.html">Liên hệ</a></div>
+                    <div><a href="TinTuc.html">Tin tức</a></div>
+                    <div><small>Hotline minh họa: 1900 xxxx</small></div>
+                </div>
+            </div>
+            <div class="chan-duoi">Sản phẩm học tập, không phải trang bán hàng chính thức. Sinh viên thực hiện: Vũ Tiến Phước – ĐH SPKT Hưng Yên.</div>
+        </div>
+    </footer>
+    <a class="chat-fab" href="LienHe.html">Trò chuyện cùng Jolly</a>
+
 </body>
 </html>

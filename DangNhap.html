@@ -1,50 +1,97 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Đăng nhập | Jollibee </title>
-<link href="vendor/bootstrap.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
-<link href="css/style.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập | Jollibee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/script.js"></script>
 </head>
-<body>
-<div id="jb-header"></div>
-<div class="page-banner"><h1>Tài khoản</h1><p>Đăng nhập để đặt hàng và theo dõi đơn hàng</p></div>
+<body onload="capNhatSoLuong()">
 
-<div class="container sec" style="max-width:520px"><div class="box">
-  <ul class="nav nav-pills mb-3" id="tab"><li class="nav-item"><a class="nav-link active" data-t="in" href="#">Đăng nhập</a></li><li class="nav-item"><a class="nav-link" data-t="up" href="#">Đăng ký</a></li></ul>
-  <form id="fin" novalidate>
-    <div class="mb-3"><label class="form-label">Email</label><input id="li-e" class="form-control" type="email"></div>
-    <div class="mb-3"><label class="form-label">Mật khẩu</label><input id="li-p" class="form-control" type="password"></div>
-    <div class="invalid-msg mb-2" id="li-err"></div><button class="btn-jb w-100" style="padding:12px">Đăng nhập</button>
-    <p class="small text-muted mt-3 mb-0">Tài khoản thử: admin@jollibee.vn / admin123 (quản trị) · nhanvien@jollibee.vn / nv123456 (nhân viên)</p>
-  </form>
-  <form id="fup" novalidate style="display:none">
-    <div class="mb-3"><label class="form-label">Họ và tên</label><input id="su-n" class="form-control"></div>
-    <div class="mb-3"><label class="form-label">Email</label><input id="su-e" class="form-control" type="email"></div>
-    <div class="mb-3"><label class="form-label">Số điện thoại</label><input id="su-t" class="form-control" inputmode="tel"></div>
-    <div class="mb-3"><label class="form-label">Mật khẩu (từ 6 ký tự)</label><input id="su-p" class="form-control" type="password"></div>
-    <div class="invalid-msg mb-2" id="su-err"></div><button class="btn-jb w-100" style="padding:12px">Tạo tài khoản</button>
-  </form>
-</div></div>
+    <!-- PHẦN ĐẦU TRANG: logo + menu (trang nào cũng giống nhau) -->
+    <header>
+        <!-- Thanh vàng trên cùng -->
+        <div class="thanh-tren">
+            <a href="#">VN</a> | <a href="#">EN</a> |
+            <span id="taiKhoan"><a href="DangNhap.html">ĐĂNG KÝ / ĐĂNG NHẬP</a></span>
+        </div>
+        <!-- Logo + menu + giỏ hàng -->
+        <div class="dau-trang">
+            <a class="logo" href="TrangChu.html">Jollibee<small>Học tập – Đồ án 2</small></a>
+            <nav>
+                <a href="TrangChu.html">Trang chủ</a>
+                <a href="ThucDon.html">Thực đơn</a>
+                <a href="KhuyenMai.html">Khuyến mãi</a>
+                <a href="DichVu.html">Dịch vụ</a>
+                <a href="TinTuc.html">Tin tức</a>
+                <a href="CuaHang.html">Cửa hàng</a>
+                <a href="LienHe.html">Liên hệ</a>
+                <a href="DonHang.html">Đơn hàng</a>
+            </nav>
+            <a class="gio-hang" href="GioHang.html">Giỏ hàng <b id="soLuongGio">0</b></a>
+        </div>
+    </header>
 
-<div id="jb-footer"></div>
-<script src="vendor/jquery.min.js"></script>
-<script src="vendor/bootstrap.bundle.min.js"></script>
-<script src="js/data.js"></script>
-<script src="js/app.js"></script>
-<script>
-JB.layout("");
+    <!-- PHẦN NỘI DUNG CHÍNH CỦA TRANG -->
+    <main class="khung">
+        <h1>Đăng nhập</h1>
+        <form onsubmit="return dangNhap()">
+            <label>Email</label>
+            <input type="text" id="email" placeholder="ten@gmail.com">
 
-var next=new URLSearchParams(location.search).get("next")||"TrangChu.html";
-if(!/^[\w\-\.%]+\.html/.test(next)||/^[a-z]+:/i.test(next))next="TrangChu.html";
-$("#tab a").on("click",function(e){e.preventDefault();$("#tab a").removeClass("active");$(this).addClass("active");var up=$(this).data("t")==="up";$("#fup").toggle(up);$("#fin").toggle(!up);});
-$("#fin").on("submit",function(e){e.preventDefault();var r=JB.login($("#li-e").val().trim(),$("#li-p").val());if(!r.ok)$("#li-err").text(r.msg);else location.href=next;});
-$("#fup").on("submit",function(e){e.preventDefault();var n=$("#su-n").val().trim(),em=$("#su-e").val().trim(),t=$("#su-t").val().trim(),p=$("#su-p").val(),m="";
- if(!n)m="Vui lòng nhập họ tên.";else if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))m="Email không hợp lệ.";else if(!/^0\d{9}$/.test(t))m="Số điện thoại gồm 10 số, bắt đầu bằng 0.";else if(p.length<6)m="Mật khẩu tối thiểu 6 ký tự.";
- if(m){$("#su-err").text(m);return;}var r=JB.register(n,em,t,p);if(!r.ok)$("#su-err").text(r.msg);else location.href=next;});
+            <label>Mật khẩu</label>
+            <input type="password" id="matKhau">
 
-</script>
+            <button type="submit">Đăng nhập</button>
+        </form>
+        <p>Tài khoản quản trị thử: admin@jollibee.vn / admin123</p>
+
+        <h1>Đăng ký tài khoản mới</h1>
+        <form onsubmit="return dangKy()">
+            <label>Họ tên</label>
+            <input type="text" id="dkHoTen">
+
+            <label>Email</label>
+            <input type="text" id="dkEmail">
+
+            <label>Số điện thoại</label>
+            <input type="text" id="dkSdt" placeholder="0912345678">
+
+            <label>Mật khẩu (ít nhất 6 ký tự)</label>
+            <input type="password" id="dkMatKhau">
+
+            <button type="submit">Đăng ký</button>
+        </form>
+    </main>
+
+    <!-- PHẦN CUỐI TRANG -->
+    <footer>
+        <div class="khung">
+            <div class="cot-chan">
+                <div>
+                    <h5>Đồ án 2 – Thiết kế web cơ bản</h5>
+                    <p>Website bán đồ ăn nhanh mô phỏng theo giao diện Jollibee Việt Nam, xây dựng cho mục đích học tập.</p>
+                </div>
+                <div>
+                    <h5>Liên kết</h5>
+                    <div><a href="ThucDon.html">Thực đơn</a></div>
+                    <div><a href="KhuyenMai.html">Khuyến mãi</a></div>
+                    <div><a href="CuaHang.html">Cửa hàng</a></div>
+                    <div><a href="DonHang.html">Đơn hàng của tôi</a></div>
+                </div>
+                <div>
+                    <h5>Hỗ trợ</h5>
+                    <div><a href="LienHe.html">Liên hệ</a></div>
+                    <div><a href="TinTuc.html">Tin tức</a></div>
+                    <div><small>Hotline minh họa: 1900 xxxx</small></div>
+                </div>
+            </div>
+            <div class="chan-duoi">Sản phẩm học tập, không phải trang bán hàng chính thức. Sinh viên thực hiện: Vũ Tiến Phước – ĐH SPKT Hưng Yên.</div>
+        </div>
+    </footer>
+    <a class="chat-fab" href="LienHe.html">Trò chuyện cùng Jolly</a>
+
 </body>
 </html>

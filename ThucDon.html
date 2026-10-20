@@ -1,51 +1,131 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Thực đơn | Jollibee </title>
-<link href="vendor/bootstrap.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
-<link href="css/style.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thực đơn | Jollibee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/script.js"></script>
 </head>
-<body>
-<div id="jb-header"></div>
-<div class="page-banner"><h1>Thực đơn</h1><p>Giao hàng tận nơi hoặc đặt đến lấy – chọn món ngay</p></div>
+<body onload="capNhatSoLuong()">
 
-<div class="container sec" style="padding-top:26px">
-  <div class="tabs-cat" id="tabs"></div>
-  <div class="row g-2 mb-3">
-    <div class="col-md-6"><input id="q" class="form-control" placeholder="Tìm món ăn theo tên..."></div>
-    <div class="col-6 col-md-3"><select id="price" class="form-select"><option value="">Mọi mức giá</option><option value="0-50000">Dưới 50.000đ</option><option value="50000-100000">50.000đ – 100.000đ</option><option value="100000-9999999">Trên 100.000đ</option></select></div>
-    <div class="col-6 col-md-3"><select id="sort" class="form-select"><option value="">Mặc định</option><option value="asc">Giá tăng dần</option><option value="desc">Giá giảm dần</option><option value="hot">Bán chạy trước</option></select></div>
-  </div>
-  <div class="d-flex justify-content-between align-items-center mb-2"><h3 class="m-0" style="font-weight:900;color:var(--red);text-transform:uppercase" id="ttl"></h3><small id="cnt" class="text-muted"></small></div>
-  <div class="row g-3" id="grid"></div>
-  <div id="empty" class="text-center py-5 text-muted" style="display:none">Không tìm thấy món phù hợp.</div>
-</div>
+    <!-- PHẦN ĐẦU TRANG: logo + menu (trang nào cũng giống nhau) -->
+    <header>
+        <!-- Thanh vàng trên cùng -->
+        <div class="thanh-tren">
+            <a href="#">VN</a> | <a href="#">EN</a> |
+            <span id="taiKhoan"><a href="DangNhap.html">ĐĂNG KÝ / ĐĂNG NHẬP</a></span>
+        </div>
+        <!-- Logo + menu + giỏ hàng -->
+        <div class="dau-trang">
+            <a class="logo" href="TrangChu.html">Jollibee<small>Học tập – Đồ án 2</small></a>
+            <nav>
+                <a href="TrangChu.html">Trang chủ</a>
+                <a href="ThucDon.html" class="active">Thực đơn</a>
+                <a href="KhuyenMai.html">Khuyến mãi</a>
+                <a href="DichVu.html">Dịch vụ</a>
+                <a href="TinTuc.html">Tin tức</a>
+                <a href="CuaHang.html">Cửa hàng</a>
+                <a href="LienHe.html">Liên hệ</a>
+                <a href="DonHang.html">Đơn hàng</a>
+            </nav>
+            <a class="gio-hang" href="GioHang.html">Giỏ hàng <b id="soLuongGio">0</b></a>
+        </div>
+    </header>
 
-<div id="jb-footer"></div>
-<script src="vendor/jquery.min.js"></script>
-<script src="vendor/bootstrap.bundle.min.js"></script>
-<script src="js/data.js"></script>
-<script src="js/app.js"></script>
-<script>
-JB.layout("ThucDon.html");
+    <!-- PHẦN NỘI DUNG CHÍNH CỦA TRANG -->
+    <main class="khung">
 
-var qs=new URLSearchParams(location.search), cat=qs.get("cat")||"", all=JB.products();
-$("#q").val(qs.get("q")||"");
-$("#tabs").html('<a href="ThucDon.html" class="'+(cat?'':'on')+'">Tất cả</a>'+JB.cats().map(function(c){return '<a href="ThucDon.html?cat='+c.slug+'" class="'+(cat===c.slug?'on':'')+'">'+JB.esc(c.name)+'</a>';}).join(''));
-function render(){
-  var q=$("#q").val().trim().toLowerCase(), pr=$("#price").val(), st=$("#sort").val(), list=all.filter(function(p){
-    if(cat&&p.cat!==cat)return false; if(q&&p.name.toLowerCase().indexOf(q)<0)return false;
-    if(pr){var r=pr.split("-");if(p.price<+r[0]||p.price>=+r[1])return false;} return true;});
-  if(st==="asc")list.sort(function(a,b){return a.price-b.price;}); if(st==="desc")list.sort(function(a,b){return b.price-a.price;});
-  if(st==="hot")list.sort(function(a,b){return (b.hot?1:0)-(a.hot?1:0);});
-  $("#ttl").text(cat?JB.cat(cat).name:"Tất cả món"); $("#cnt").text(list.length+" món");
-  $("#grid").html(list.map(JB.card).join('')); $("#empty").toggle(!list.length);
-}
-$("#q").on("input",render); $("#price,#sort").on("change",render); render();
+        <h1>Thực đơn</h1>
+        <p>(Dữ liệu món ăn là dữ liệu mẫu phục vụ học tập)</p>
+        <div class="luoi">
+            <div class="the">
+                <div class="anh">🍗</div>
+                <h3>6 Miếng Gà Giòn Vui Vẻ</h3>
+                <p>Phần gà chia sẻ cho cả nhóm</p>
+                <p class="gia">204.000đ</p>
+                <button onclick="themVaoGio('6 Miếng Gà Giòn Vui Vẻ', 204000)">Thêm</button>
+            </div>
+            <div class="the">
+                <div class="anh">🍝</div>
+                <h3>Mì Ý Jolly (Vừa)</h3>
+                <p>Mì Ý sốt bò bằm, đậm phô mai</p>
+                <p class="gia">29.000đ</p>
+                <button onclick="themVaoGio('Mì Ý Jolly (Vừa)', 29000)">Thêm</button>
+            </div>
+            <div class="the">
+                <div class="anh">🍝</div>
+                <h3>Mì Ý Jolly (Lớn)</h3>
+                <p>Phần mì Ý lớn cho người ăn khỏe</p>
+                <p class="gia">39.000đ</p>
+                <button onclick="themVaoGio('Mì Ý Jolly (Lớn)', 39000)">Thêm</button>
+            </div>
+            <div class="the">
+                <div class="anh">🌶️</div>
+                <h3>Mì Ý Sốt Cay</h3>
+                <p>Mì Ý sốt cay vừa, đậm đà</p>
+                <p class="gia">35.000đ</p>
+                <button onclick="themVaoGio('Mì Ý Sốt Cay', 35000)">Thêm</button>
+            </div>
+            <div class="the">
+                <div class="anh">🍔</div>
+                <h3>Burger Gà Giòn</h3>
+                <p>Burger gà giòn, rau tươi</p>
+                <p class="gia">45.000đ</p>
+                <button onclick="themVaoGio('Burger Gà Giòn', 45000)">Thêm</button>
+            </div>
+            <div class="the">
+                <div class="anh">🍟</div>
+                <h3>Khoai Tây Chiên</h3>
+                <p>Khoai tây chiên vàng giòn</p>
+                <p class="gia">25.000đ</p>
+                <button onclick="themVaoGio('Khoai Tây Chiên', 25000)">Thêm</button>
+            </div>
+            <div class="the">
+                <div class="anh">🍗</div>
+                <h3>1 Miếng Gà Giòn</h3>
+                <p>Gà giòn vui vẻ 1 miếng</p>
+                <p class="gia">36.000đ</p>
+                <button onclick="themVaoGio('1 Miếng Gà Giòn', 36000)">Thêm</button>
+            </div>
+            <div class="the">
+                <div class="anh">🥤</div>
+                <h3>Nước Ngọt</h3>
+                <p>Ly nước ngọt có gas</p>
+                <p class="gia">15.000đ</p>
+                <button onclick="themVaoGio('Nước Ngọt', 15000)">Thêm</button>
+            </div>
+        </div>
 
-</script>
+    </main>
+
+    <!-- PHẦN CUỐI TRANG -->
+    <footer>
+        <div class="khung">
+            <div class="cot-chan">
+                <div>
+                    <h5>Đồ án 2 – Thiết kế web cơ bản</h5>
+                    <p>Website bán đồ ăn nhanh mô phỏng theo giao diện Jollibee Việt Nam, xây dựng cho mục đích học tập.</p>
+                </div>
+                <div>
+                    <h5>Liên kết</h5>
+                    <div><a href="ThucDon.html">Thực đơn</a></div>
+                    <div><a href="KhuyenMai.html">Khuyến mãi</a></div>
+                    <div><a href="CuaHang.html">Cửa hàng</a></div>
+                    <div><a href="DonHang.html">Đơn hàng của tôi</a></div>
+                </div>
+                <div>
+                    <h5>Hỗ trợ</h5>
+                    <div><a href="LienHe.html">Liên hệ</a></div>
+                    <div><a href="TinTuc.html">Tin tức</a></div>
+                    <div><small>Hotline minh họa: 1900 xxxx</small></div>
+                </div>
+            </div>
+            <div class="chan-duoi">Sản phẩm học tập, không phải trang bán hàng chính thức. Sinh viên thực hiện: Vũ Tiến Phước – ĐH SPKT Hưng Yên.</div>
+        </div>
+    </footer>
+    <a class="chat-fab" href="LienHe.html">Trò chuyện cùng Jolly</a>
+
 </body>
 </html>
