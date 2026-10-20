@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thực đơn | Jollibee – Đồ án 2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/chung.css">
+  <link rel="stylesheet" href="../css/thucdon.css">
+</head>
+<body onload="khoiTaoThucDon()">
+<div id="jb-header"></div>
+
+<div class="page-banner"><h1>Thực đơn</h1><p>Giao hàng tận nơi hoặc đặt đến lấy – chọn món ngay</p></div>
+
+<div class="container sec" style="padding-top:26px">
+  <div class="tabs-cat" id="tabs"></div>
+  <div class="bo-loc">
+    <div class="o-tim"><input id="q" class="o-nhap" placeholder="Tìm món ăn theo tên..."></div>
+    <div><select id="price" class="o-nhap"><option value="">Mọi mức giá</option><option value="0-50000">Dưới 50.000đ</option><option value="50000-100000">50.000đ – 100.000đ</option><option value="100000-9999999">Trên 100.000đ</option></select></div>
+    <div><select id="sort" class="o-nhap"><option value="">Mặc định</option><option value="asc">Giá tăng dần</option><option value="desc">Giá giảm dần</option><option value="hot">Bán chạy trước</option></select></div>
+  </div>
+  <div class="flex hai-dau giua-doc mb2"><h3 class="tieu-de-ds" id="ttl"></h3><small id="cnt" class="muted"></small></div>
+  <div class="luoi luoi-sp" id="grid"></div>
+  <div id="empty" class="text-center muted" style="display:none;padding:3rem 0">Không tìm thấy món phù hợp.</div>
+</div>
+
+<div id="jb-footer"></div>
+<script src="../js/dulieu.js"></script>
+<script src="../js/chung.js"></script>
+<script src="../js/thucdon.js"></script>
+</body>
+</html>

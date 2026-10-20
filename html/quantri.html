@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản trị | Jollibee – Đồ án 2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/chung.css">
+  <link rel="stylesheet" href="../css/quantri.css">
+</head>
+<body onload="khoiTaoQuanTri()">
+<div class="qt">
+  <aside class="side" id="side"></aside>
+  <main>
+    <div class="top"><b id="ptitle"></b><span><span id="who"></span> · <a href="trangchu.html">Về trang bán hàng</a> · <a href="#" id="out">Đăng xuất</a></span></div>
+    <div class="noi-dung" id="view"></div>
+  </main>
+</div>
+
+<!-- Hộp thoại thêm / sửa món ăn -->
+<div class="hop-nen" id="pm"><div class="hop">
+  <div class="hop-dau"><h5 id="pmT">Món ăn</h5><button class="hop-dong" data-dong>&times;</button></div>
+  <div class="hop-than">
+    <input type="hidden" id="pid">
+    <div class="truong"><label class="nhan">Tên món *</label><input id="pn" class="o-nhap"></div>
+    <div class="cot-gia"><div><label class="nhan">Danh mục</label><select id="pc" class="o-nhap"></select></div><div><label class="nhan">Giá (đ) *</label><input id="pp" class="o-nhap" inputmode="numeric"></div></div>
+    <div class="truong"><label class="nhan">Mô tả</label><textarea id="pd" rows="2" class="o-nhap"></textarea></div>
+    <div class="truong"><label class="nhan">Đường dẫn hình ảnh (tùy chọn)</label><input id="pi" class="o-nhap" placeholder="https://..."></div>
+    <label style="margin-right:1rem"><input type="checkbox" id="ph"> Bán chạy</label><label><input type="checkbox" id="pa" checked> Đang bán</label>
+    <div class="invalid-msg" id="pe"></div>
+  </div>
+  <div class="hop-chan"><button class="btn-line" data-dong>Hủy</button><button class="btn-jb" id="psave">Lưu</button></div>
+</div></div>
+
+<!-- Hộp thoại chi tiết đơn hàng -->
+<div class="hop-nen" id="om"><div class="hop rong">
+  <div class="hop-dau"><h5 id="omT"></h5><button class="hop-dong" data-dong>&times;</button></div>
+  <div class="hop-than" id="omB"></div>
+</div></div>
+
+<script src="../js/dulieu.js"></script>
+<script src="../js/chung.js"></script>
+<script src="../js/quantri.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+/* ===== ĐẶT HÀNG ===== */
+.dh-truong{display:grid;gap:1rem;grid-template-columns:1fr;margin-top:.25rem}
+@media(min-width:768px){.dh-truong{grid-template-columns:1fr 1fr}}
+.dh-truong .full label.dong{display:block}
+.dh-truong label.chon{margin-right:1.5rem}
+.dh-xong{text-align:center;padding:3rem 0}
+.dh-xong .dau-tick{font-size:64px;color:#16a34a}
+.dh-xong h2{font-weight:900;color:var(--red)}

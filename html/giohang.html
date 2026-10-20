@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giỏ hàng | Jollibee – Đồ án 2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/chung.css">
+  <link rel="stylesheet" href="../css/giohang.css">
+</head>
+<body onload="khoiTaoGioHang()">
+<div id="jb-header"></div>
+
+<div class="page-banner"><h1>Giỏ hàng</h1><p>Kiểm tra món đã chọn trước khi đặt hàng</p></div>
+
+<div class="container sec" style="padding-top:28px"><div class="chia" style="--tl:2fr 1fr">
+  <div><div class="box"><h4 class="tieu-do">GIỎ HÀNG CỦA BẠN</h4><div id="lines"></div></div></div>
+  <div><div class="box">
+    <h5 style="font-weight:900">Mã giảm giá</h5>
+    <div class="nhom-nhap ma-giam mb1"><input id="code" class="o-nhap" placeholder="VD: JOLLY10"><button class="btn-jb" id="ap">Áp dụng</button></div>
+    <div id="pm" class="nho mb3"></div>
+    <div class="mb2 chon-hinh-thuc"><label><input type="radio" name="mode" value="delivery"> Giao tận nơi</label><label><input type="radio" name="mode" value="pickup"> Đến lấy</label></div>
+    <div class="sum-line"><span>Tạm tính</span><b id="s1"></b></div>
+    <div class="sum-line"><span>Phí giao hàng</span><b id="s2"></b></div>
+    <div class="sum-line"><span>Giảm giá</span><b id="s3"></b></div>
+    <div class="sum-line sum-total"><span>Tổng cộng</span><span id="s4"></span></div>
+    <button class="btn-jb w100 mt3" id="go" style="padding:13px">Tiến hành đặt hàng</button>
+    <a class="btn-line w100 mt2" style="display:block" href="thucdon.html">Tiếp tục chọn món</a>
+  </div></div>
+</div></div>
+
+<div id="jb-footer"></div>
+<script src="../js/dulieu.js"></script>
+<script src="../js/chung.js"></script>
+<script src="../js/giohang.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+/* ===== CHI TIẾT MÓN ĂN ===== */
+.ct-anh{width:100%;border-radius:1rem;background:var(--cream)}
+.ct-ten{font-weight:900;text-transform:uppercase}
+.ct-gia{font-size:30px;font-weight:900;color:var(--red);margin:1rem 0}
+.ct-hang{display:flex;flex-wrap:wrap;align-items:center;gap:1rem;margin-top:1.5rem}
+.ct-duong-dan{margin-bottom:.5rem}
+.sec h3.tieu-muc{font-weight:900;color:var(--red)}
+.danh-gia-gui select{max-width:160px;margin-bottom:.5rem}
+.danh-gia-gui textarea{margin-bottom:.5rem}
+.ds-danh-gia .box{margin-bottom:.5rem}
+.sec hr{margin:3rem 0}

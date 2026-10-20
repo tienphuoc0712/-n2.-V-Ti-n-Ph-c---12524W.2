@@ -1,0 +1,24 @@
+/* ===== TRANG CHỦ: banner trượt, nút chọn hình thức nhận hàng ===== */
+.jb-hero{background:var(--dark);padding:22px 0 8px}
+.slider{max-width:1480px;margin:auto;padding:0 40px;position:relative}
+.slider-khung{overflow:hidden;border-radius:22px}
+.slider-day{display:flex;transition:transform .6s ease}
+.slider-muc{flex:0 0 100%}
+.jb-hero .bn{aspect-ratio:1920/794;border-radius:22px;overflow:hidden;background:linear-gradient(120deg,#ffc72c,#e4002b)}
+.jb-hero .bn img{width:100%;height:100%;object-fit:cover;display:block;color:transparent}
+.slider-nut{position:absolute;top:0;bottom:48px;width:68px;border:0;background:none;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.slider-nut.truoc{left:0}.slider-nut.sau{right:0}
+.jb-arrow{width:52px;height:52px;border-radius:50%;background:var(--yellow);border:2px solid var(--red);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900}
+.slider-cham{display:flex;justify-content:center;margin:12px 0 0}
+.slider-cham button{width:14px;height:14px;border-radius:50%;background:transparent;border:2px solid #999;margin:0 5px;padding:0;cursor:pointer;transition:.2s}
+.slider-cham button.active{width:34px;border-radius:10px;background:var(--red);border-color:var(--red)}
+.jb-mode{display:flex;justify-content:center;gap:16px;padding:18px 0 28px;background:var(--dark)}
+.jb-mode button{border:2px solid #777;background:transparent;color:#eee;font-weight:900;text-transform:uppercase;border-radius:30px;padding:12px 44px;font-size:18px;letter-spacing:.3px;cursor:pointer;transition:.15s}
+.jb-mode button.on{background:var(--red);border-color:var(--red);color:#fff}
+.jb-mode button:hover{border-color:var(--yellow)}
+.nen-kem{background:var(--cream)}
+.nen-xam{background:#fafafa}
+@media(max-width:992px){
+ .slider{padding:0 12px}.jb-arrow{width:36px;height:36px;font-size:16px}
+ .jb-mode button{padding:10px 20px;font-size:14px}
+}

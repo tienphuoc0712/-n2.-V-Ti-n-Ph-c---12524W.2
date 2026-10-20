@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Open trangchu.html",
+      "file": "${workspaceFolder}/html/trangchu.html"
+    }
+  ]
+}

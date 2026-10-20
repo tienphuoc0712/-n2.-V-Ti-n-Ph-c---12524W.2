@@ -1,0 +1,8 @@
+/* ===== THỰC ĐƠN: tab danh mục, bộ lọc ===== */
+.tabs-cat{display:flex;gap:6px;overflow-x:auto;padding:8px 0 16px;scrollbar-width:thin}
+.tabs-cat a{flex:0 0 auto;padding:9px 18px;border-radius:30px;background:#f4f4f4;font-weight:800;font-size:14px;text-transform:uppercase}
+.tabs-cat a.on,.tabs-cat a:hover{background:var(--red);color:#fff}
+.bo-loc{display:grid;gap:.5rem;grid-template-columns:1fr 1fr;margin-bottom:1rem}
+.bo-loc .o-tim{grid-column:1/-1}
+@media(min-width:768px){.bo-loc{grid-template-columns:2fr 1fr 1fr}.bo-loc .o-tim{grid-column:auto}}
+.tieu-de-ds{font-weight:900;color:var(--red);text-transform:uppercase;margin:0}

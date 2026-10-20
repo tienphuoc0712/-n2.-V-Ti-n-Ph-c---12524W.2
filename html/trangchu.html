@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang chủ | Jollibee – Đồ án 2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/chung.css">
+  <link rel="stylesheet" href="../css/trangchu.css">
+</head>
+<body onload="khoiTaoTrangChu()">
+<div id="jb-header"></div>
+
+<!-- ===== KHỐI 1: BANNER TRƯỢT ===== -->
+<section class="jb-hero">
+  <div class="slider" id="slider">
+    <div class="slider-khung"><div class="slider-day" id="heroItems"></div></div>
+    <button class="slider-nut truoc" type="button" id="sTruoc" aria-label="Trước"><span class="jb-arrow">&#8249;</span></button>
+    <button class="slider-nut sau" type="button" id="sSau" aria-label="Sau"><span class="jb-arrow">&#8250;</span></button>
+    <div class="slider-cham" id="heroDots"></div>
+  </div>
+</section>
+
+<!-- ===== KHỐI 2: CHỌN HÌNH THỨC NHẬN HÀNG ===== -->
+<div class="jb-mode"><button id="mDel">Giao hàng tận nơi</button><button id="mPick">Đặt đến lấy</button></div>
+
+<!-- ===== KHỐI 3: DANH MỤC ===== -->
+<section class="sec"><div class="container">
+  <h2 class="sec-title">Thực đơn</h2><p class="sec-sub">Chọn nhóm món bạn yêu thích</p>
+  <div class="cat-strip" id="catStrip"></div>
+</div></section>
+
+<!-- ===== KHỐI 4: MÓN BÁN CHẠY ===== -->
+<section class="sec nen-kem"><div class="container">
+  <h2 class="sec-title">Món bán chạy</h2><p class="sec-sub">Được nhiều khách hàng lựa chọn nhất</p>
+  <div class="luoi luoi-sp" id="hotGrid"></div>
+  <div class="text-center mt4"><a class="btn-jb" href="thucdon.html">Xem toàn bộ thực đơn</a></div>
+</div></section>
+
+<!-- ===== KHỐI 5: KHUYẾN MÃI ===== -->
+<section class="sec"><div class="container">
+  <h2 class="sec-title">Khuyến mãi</h2><p class="sec-sub">Nhập mã tại bước giỏ hàng để nhận ưu đãi</p>
+  <div class="luoi luoi-3" id="promoGrid"></div>
+</div></section>
+
+<!-- ===== KHỐI 6: TIN TỨC ===== -->
+<section class="sec nen-xam"><div class="container">
+  <h2 class="sec-title">Tin tức</h2><p class="sec-sub">Cập nhật mới nhất từ Jollibee</p>
+  <div class="luoi luoi-3" id="newsGrid"></div>
+</div></section>
+
+<div id="jb-footer"></div>
+<script src="../js/dulieu.js"></script>
+<script src="../js/chung.js"></script>
+<script src="../js/trangchu.js"></script>
+</body>
+</html>

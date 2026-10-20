@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tài khoản | Jollibee – Đồ án 2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/chung.css">
+  <link rel="stylesheet" href="../css/dangnhap.css">
+</head>
+<body onload="khoiTaoDangNhap()">
+<div id="jb-header"></div>
+
+<div class="page-banner"><h1>Tài khoản</h1><p>Đăng nhập để đặt hàng và theo dõi đơn</p></div>
+
+<div class="container sec khung-nho"><div class="box">
+  <ul class="tab-dn" id="tab"><li><a class="active" data-t="in" href="#">Đăng nhập</a></li><li><a data-t="up" href="#">Đăng ký</a></li></ul>
+  <form id="fin" novalidate>
+    <div class="truong"><label class="nhan">Email</label><input id="li-e" class="o-nhap" type="email"></div>
+    <div class="truong"><label class="nhan">Mật khẩu</label><input id="li-p" class="o-nhap" type="password"></div>
+    <div class="invalid-msg mb2" id="li-err"></div><button class="btn-jb w100" style="padding:12px">Đăng nhập</button>
+    <p class="nho muted mt3" style="margin-bottom:0">Tài khoản thử: admin@jollibee.vn / admin123 (quản trị) · nhanvien@jollibee.vn / nv123456 (nhân viên)</p>
+  </form>
+  <form id="fup" novalidate style="display:none">
+    <div class="truong"><label class="nhan">Họ và tên</label><input id="su-n" class="o-nhap"></div>
+    <div class="truong"><label class="nhan">Email</label><input id="su-e" class="o-nhap" type="email"></div>
+    <div class="truong"><label class="nhan">Số điện thoại</label><input id="su-t" class="o-nhap" inputmode="tel"></div>
+    <div class="truong"><label class="nhan">Mật khẩu (từ 6 ký tự)</label><input id="su-p" class="o-nhap" type="password"></div>
+    <div class="invalid-msg mb2" id="su-err"></div><button class="btn-jb w100" style="padding:12px">Tạo tài khoản</button>
+  </form>
+</div></div>
+
+<div id="jb-footer"></div>
+<script src="../js/dulieu.js"></script>
+<script src="../js/chung.js"></script>
+<script src="../js/dangnhap.js"></script>
+</body>
+</html>

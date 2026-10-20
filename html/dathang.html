@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đặt hàng | Jollibee – Đồ án 2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/chung.css">
+  <link rel="stylesheet" href="../css/dathang.css">
+</head>
+<body onload="khoiTaoDatHang()">
+<div id="jb-header"></div>
+
+<div class="page-banner"><h1>Đặt hàng</h1><p>Điền thông tin để hoàn tất đơn</p></div>
+
+<div class="container sec" style="padding-top:28px" id="wrap"><div class="chia" style="--tl:7fr 5fr">
+  <div><div class="box"><h4 class="tieu-do">THÔNG TIN NHẬN HÀNG</h4>
+    <div class="dh-truong">
+      <div><label class="nhan">Họ và tên *</label><input id="name" class="o-nhap"><div class="invalid-msg" id="e-name"></div></div>
+      <div><label class="nhan">Số điện thoại *</label><input id="phone" class="o-nhap" inputmode="tel" placeholder="0xxxxxxxxx"><div class="invalid-msg" id="e-phone"></div></div>
+      <div class="full" id="addrBox"><label class="nhan">Địa chỉ giao hàng *</label><input id="addr" class="o-nhap"><div class="invalid-msg" id="e-addr"></div></div>
+      <div class="full"><label class="nhan">Ghi chú</label><textarea id="note" class="o-nhap" rows="2"></textarea></div>
+      <div class="full"><label class="nhan dong" style="display:block">Hình thức nhận hàng</label><label class="chon"><input type="radio" name="mode" value="delivery"> Giao tận nơi</label><label><input type="radio" name="mode" value="pickup"> Đến lấy tại cửa hàng</label></div>
+      <div class="full"><label class="nhan" style="display:block">Phương thức thanh toán (mô phỏng)</label>
+        <label class="chon"><input type="radio" name="pay" value="cod" checked> Tiền mặt khi nhận</label><label class="chon"><input type="radio" name="pay" value="bank"> Chuyển khoản</label><label><input type="radio" name="pay" value="wallet"> Ví điện tử</label></div>
+    </div></div></div>
+  <div><div class="box"><h5 style="font-weight:900">Đơn hàng của bạn</h5><div id="sumLines" class="mb2"></div>
+    <div class="sum-line"><span>Tạm tính</span><b id="s1"></b></div><div class="sum-line"><span>Phí giao hàng</span><b id="s2"></b></div><div class="sum-line"><span>Giảm giá</span><b id="s3"></b></div>
+    <div class="sum-line sum-total"><span>Tổng cộng</span><span id="s4"></span></div>
+    <div class="invalid-msg" id="e-all"></div>
+    <button class="btn-jb w100 mt3" id="place" style="padding:13px">Xác nhận đặt hàng</button>
+    <a class="btn-line w100 mt2" style="display:block" href="giohang.html">Quay lại giỏ hàng</a></div></div>
+</div></div>
+
+<div id="jb-footer"></div>
+<script src="../js/dulieu.js"></script>
+<script src="../js/chung.js"></script>
+<script src="../js/dathang.js"></script>
+</body>
+</html>

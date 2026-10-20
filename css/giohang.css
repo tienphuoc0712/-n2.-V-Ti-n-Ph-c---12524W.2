@@ -1,0 +1,9 @@
+/* ===== GIỎ HÀNG ===== */
+.cart-row{display:flex;gap:16px;align-items:center;padding:14px 0;border-bottom:1px solid #eee}
+.cart-row img{width:84px;height:84px;object-fit:cover;border-radius:14px;background:var(--cream)}
+.cart-row .ten{flex:1}
+.cart-row .tien{min-width:92px;text-align:right;font-weight:bold}
+.cart-row .rm{border:0;background:none;color:#dc3545;cursor:pointer;padding:.25rem .5rem;font-size:14px}
+.cart-trong{text-align:center;padding:3rem 0;color:#6c757d}
+.ma-giam .btn-jb{border-radius:0 30px 30px 0}
+.chon-hinh-thuc label{margin-right:1rem}

@@ -1,0 +1,6 @@
+/* ===== ĐĂNG NHẬP / ĐĂNG KÝ ===== */
+.khung-nho{max-width:520px}
+.tab-dn{display:flex;gap:.25rem;list-style:none;padding:0;margin:0 0 1rem}
+.tab-dn a{display:block;padding:.5rem 1rem;border-radius:.375rem;font-weight:700}
+.tab-dn a:hover{background:#f5f5f5}
+.tab-dn a.active{background:var(--red);color:#fff}
