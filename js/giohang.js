@@ -107,7 +107,19 @@ function doiHinhThuc() {
 }
 
 function khoiTaoGioHang() {
+    if (layNguoiDangNhap() == null) {          // phải đăng nhập mới có giỏ hàng
+        location.href = "dangnhap.html?next=giohang.html";
+        return;
+    }
+    if (duocMuaHang() == false) {              // nhân viên / quản trị không có giỏ hàng
+        location.href = "quantri.html";
+        return;
+    }
     veDauTrangVaChanTrang("giohang.html");
+    if (layNguoiDangNhap() == null) {          // phải đăng nhập mới dùng giỏ hàng
+        location.href = "dangnhap.html?next=giohang.html";
+        return;
+    }
     nhoLaiMaDaDung();
     var o = document.getElementsByName("mode");
     for (var i = 0; i < o.length; i++) {

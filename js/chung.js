@@ -226,17 +226,72 @@ function giaHienThi(mon) {
 // ================= 4. GIỎ HÀNG =================
 // Giỏ hàng là mảng, mỗi phần tử có dạng: { id: 5, soLuong: 2 }
 
+// Mỗi tài khoản khách có giỏ riêng: jb_gioHang_<id>. Chưa đăng nhập dùng giỏ tạm "jb_gioHang".
+// Nhân viên / quản trị viên không có giỏ hàng (không được đặt món).
+function khoaGioHang() {
+    var nguoi = layNguoiDangNhap();
+    if (nguoi == null) {
+        return "jb_gioHang";
+    }
+    if (nguoi.vaiTro == "khach") {
+        return "jb_gioHang_" + nguoi.id;
+    }
+    return null;
+}
+
+// Chỉ khách hàng mới được mua (nhân viên/quản trị viên chỉ quản lý)
+function duocMuaHang() {
+    var nguoi = layNguoiDangNhap();
+    return nguoi == null || nguoi.vaiTro == "khach";
+}
+
 function layGioHang() {
-    return docDuLieu("jb_gioHang", []);
+    var khoa = khoaGioHang();
+    if (khoa == null) {
+        return [];
+    }
+    return docDuLieu(khoa, []);
 }
 
 function luuGioHang(gioHang) {
-    ghiDuLieu("jb_gioHang", gioHang);
+    var khoa = khoaGioHang();
+    if (khoa != null) {
+        ghiDuLieu(khoa, gioHang);
+    }
     capNhatSoLuongGio();
+}
+
+// Sau khi khách đăng nhập: gộp giỏ tạm (lúc chưa đăng nhập) vào giỏ của tài khoản
+function gopGioTam() {
+    var tam = docDuLieu("jb_gioHang", []);
+    if (tam.length == 0 || duocMuaHang() == false) {
+        return;
+    }
+    var gio = layGioHang();
+    for (var i = 0; i < tam.length; i++) {
+        var thay = false;
+        for (var j = 0; j < gio.length; j++) {
+            if (gio[j].id == tam[i].id) {
+                gio[j].soLuong = Math.min(TOI_DA, gio[j].soLuong + tam[i].soLuong);
+                thay = true;
+            }
+        }
+        if (thay == false) {
+            gio.push(tam[i]);
+        }
+    }
+    luuGioHang(gio);
+    ghiDuLieu("jb_gioHang", []);
 }
 
 // Thêm món vào giỏ. Trả về { ok: true/false, thongBao: "..." }
 function themMonVaoGio(id, soLuong) {
+    if (layNguoiDangNhap() == null) {
+        return { ok: false, canDangNhap: true, thongBao: "Vui lòng đăng nhập để thêm món vào giỏ hàng." };
+    }
+    if (duocMuaHang() == false) {
+        return { ok: false, thongBao: "Tài khoản nhân viên/quản trị không thể đặt món." };
+    }
     var mon = timMon(id);
     if (mon == null || mon.dangBan == false) {
         return { ok: false, thongBao: "Món này hiện đã ngừng bán." };
@@ -362,11 +417,30 @@ function luuKhuyenMai(ds) {
 }
 
 // Kiểm tra mã giảm giá. Trả về { ok: true, km: {...} } hoặc { ok: false, thongBao: "..." }
+// Tài khoản này đã dùng mã chưa? (đơn đã hủy / giao thất bại thì không tính là đã dùng)
+function daDungMa(email, ma) {
+    var ds = layDonHang();
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].email == email && String(ds[i].maKM).toUpperCase() == String(ma).toUpperCase()
+            && ds[i].trangThai != "da_huy" && ds[i].trangThai != "giao_that_bai") {
+            return true;
+        }
+    }
+    return false;
+}
+
 function kiemTraMa(ma, tamTinh) {
     ma = String(ma).trim().toUpperCase();
     var ds = layKhuyenMai(false);
     for (var i = 0; i < ds.length; i++) {
         if (ds[i].ma.toUpperCase() == ma) {
+            var nguoi = layNguoiDangNhap();
+            if (nguoi == null) {
+                return { ok: false, thongBao: "Vui lòng đăng nhập để dùng mã giảm giá." };
+            }
+            if (daDungMa(nguoi.email, ds[i].ma)) {
+                return { ok: false, thongBao: "Bạn đã dùng mã này rồi (mỗi tài khoản chỉ dùng 1 lần)." };
+            }
             if (tamTinh < ds[i].toiThieu) {
                 return { ok: false, thongBao: "Đơn tối thiểu " + dinhDangTien(ds[i].toiThieu) + " để dùng mã này." };
             }
@@ -458,6 +532,7 @@ function dangKyTaiKhoan(hoTen, email, sdt, matKhau) {
     ds.push(moi);
     luuNguoiDung(ds);
     ghiDuLieu("jb_dangNhap", moi.id);        // đăng ký xong tự đăng nhập luôn
+    gopGioTam();
     return { ok: true };
 }
 
@@ -469,6 +544,8 @@ function dangNhapTaiKhoan(email, matKhau) {
                 return { ok: false, thongBao: "Tài khoản đã bị khóa." };
             }
             ghiDuLieu("jb_dangNhap", ds[i].id);
+            gopGioTam();
+            try { sessionStorage.removeItem("jb_ma"); } catch (loi) { }
             return { ok: true };
         }
     }
@@ -477,6 +554,7 @@ function dangNhapTaiKhoan(email, matKhau) {
 
 function dangXuat() {
     ghiDuLieu("jb_dangNhap", null);
+    try { sessionStorage.removeItem("jb_ma"); } catch (loi) { }
     location.href = "trangchu.html";
 }
 
@@ -504,6 +582,9 @@ function timDon(ma) {
 
 // Tạo đơn từ giỏ hàng. Trả về { ok: true, don: {...} } hoặc { ok: false, thongBao: "..." }
 function taoDonHang(thongTin) {
+    if (duocMuaHang() == false) {
+        return { ok: false, thongBao: "Tài khoản nhân viên/quản trị không thể đặt món." };
+    }
     var dong = layDongGio();
     if (dong.length == 0) {
         return { ok: false, thongBao: "Giỏ hàng đang trống." };
@@ -645,9 +726,19 @@ function veTheMon(mon) {
         '<button class="btn-jb" onclick="bamNutThem(' + mon.id + ')">Thêm</button></div></div></div>';
 }
 
+// Chuyển sang trang đăng nhập, đăng nhập xong quay lại đúng trang đang xem
+function chuyenDenDangNhap() {
+    var trang = location.pathname.split("/").pop() + location.search;
+    location.href = "dangnhap.html?next=" + encodeURIComponent(trang);
+}
+
 // Bấm nút "Thêm" trên thẻ món ăn
 function bamNutThem(id) {
     var kq = themMonVaoGio(id, 1);
+    if (kq.canDangNhap) {
+        chuyenDenDangNhap();
+        return;
+    }
     thongBao(kq.thongBao);
 }
 
@@ -720,7 +811,7 @@ function veDauTrangVaChanTrang(trangHienTai) {
         '<a class="jb-logo" href="trangchu.html">Jollibee<small>Đồ án 2 – Vũ Tiến Phước</small></a>' +
         '<button class="jb-burger" aria-label="Menu" onclick="document.getElementById(\'menuChinh\').classList.toggle(\'open\')">&#9776;</button>' +
         '<ul class="jb-nav" id="menuChinh">' + dsMenu + '</ul>' +
-        '<div class="jb-right"><a class="jb-cart" href="giohang.html">Giỏ hàng <b class="jb-cart-n">0</b></a></div>' +
+        '<div class="jb-right">' + (duocMuaHang() ? '<a class="jb-cart" href="giohang.html">Giỏ hàng <b class="jb-cart-n">0</b></a>' : '') + '</div>' +
         '</div></header>');
 
     datHTML("jb-footer",

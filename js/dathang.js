@@ -84,6 +84,10 @@ function xacNhanDatHang() {
 }
 
 function khoiTaoDatHang() {
+    if (duocMuaHang() == false) {              // nhân viên / quản trị không có giỏ hàng
+        location.href = "quantri.html";
+        return;
+    }
     veDauTrangVaChanTrang("giohang.html");
     nguoiDat = layNguoiDangNhap();
     if (nguoiDat == null) {                      // chưa đăng nhập thì sang trang đăng nhập

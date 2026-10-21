@@ -27,12 +27,18 @@ function tangGiamSoLuong(buoc) {
 
 function bamThemVaoGio() {
     var kq = themMonVaoGio(monDangXem.id, laySoLuongChon());
+    if (kq.canDangNhap) {
+        chuyenDenDangNhap();
+        return;
+    }
     thongBao(kq.thongBao);
 }
 
 function bamMuaNgay() {
     var kq = themMonVaoGio(monDangXem.id, laySoLuongChon());
-    if (kq.ok) {
+    if (kq.canDangNhap) {
+        chuyenDenDangNhap();
+    } else if (kq.ok) {
         location.href = "giohang.html";
     } else {
         thongBao(kq.thongBao);
