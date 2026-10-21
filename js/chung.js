@@ -725,10 +725,10 @@ function veDauTrangVaChanTrang(trangHienTai) {
 
     datHTML("jb-footer",
         '<footer class="jb-foot"><div class="container"><div class="foot-luoi">' +
-        '<div><h5>Đồ án 2 – Thiết kế web cơ bản</h5><p>Website bán đồ ăn nhanh mô phỏng theo giao diện Jollibee Việt Nam, xây dựng cho mục đích học tập.</p></div>' +
+        '<div><h5>Đồ án 2 – Thiết kế web cơ bản</h5><p>Website bán đồ ăn nhanh mô phỏng theo giao diện Jollibee Việt Nam.</p></div>' +
         '<div><h5>Liên kết</h5><div><a href="thucdon.html">Thực đơn</a></div><div><a href="khuyenmai.html">Khuyến mãi</a></div><div><a href="cuahang.html">Cửa hàng</a></div><div><a href="donhang.html">Đơn hàng của tôi</a></div></div>' +
         '<div><h5>Hỗ trợ</h5><div><a href="lienhe.html">Liên hệ</a></div><div><a href="tintuc.html">Tin tức</a></div><div><small>Hotline minh họa: 1900 xxxx</small></div></div>' +
-        '</div><div class="sub">Sinh viên thực hiện: Vũ Tiến Phước – Đại học Công nghệ Kỹ thuật Hưng Yên. Sản phẩm học tập, không phải trang bán hàng chính thức.</div></div></footer>' +
+        '</div><div class="sub">Sinh viên thực hiện: Vũ Tiến Phước – Đại học Công nghệ Kỹ thuật Hưng Yên.</div></div></footer>' +
         '<a class="chat-fab" href="lienhe.html">Trò chuyện cùng Jolly</a>');
 
     capNhatSoLuongGio();
