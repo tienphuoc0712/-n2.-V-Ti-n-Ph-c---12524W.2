@@ -9,15 +9,58 @@
   <link rel="stylesheet" href="../css/trangchu.css">
 </head>
 <body onload="khoiTaoTrangChu()">
-<div id="jb-header"></div>
+<div id="jb-header">
+  <div class="jb-top"><a href="#">VN</a><span class="sep"></span><a href="#">EN</a><span class="sep"></span><span id="jb-tk"><a href="dangnhap.html">ĐĂNG KÝ / ĐĂNG NHẬP</a></span></div>
+  <header class="jb-head"><div class="jb-head-in">
+    <a class="jb-logo" href="trangchu.html">Jollibee<small>Đồ án 2 – Vũ Tiến Phước</small></a>
+    <input type="checkbox" id="jb-bat" class="jb-bat">
+    <label for="jb-bat" class="jb-burger" aria-label="Menu">&#9776;</label>
+    <ul class="jb-nav" id="menuChinh">
+      <li><a href="trangchu.html" class="active">Trang chủ</a></li>
+      <li><a href="thucdon.html">Thực đơn</a>
+        <div class="jb-mega">
+          <a href="thucdon.html?cat=combo"><img src="https://jollibee.com.vn//media/catalog/category/web-12_1_1.png" alt="" onerror="this.style.visibility='hidden'">Combo Bán Chạy</a>
+          <a href="thucdon.html?cat=ga-gion"><img src="https://jollibee.com.vn//media/catalog/category/web_2026-15.2_1.png" alt="" onerror="this.style.visibility='hidden'">Gà Giòn Vui Vẻ</a>
+          <a href="thucdon.html?cat=mi-y"><img src="https://jollibee.com.vn//media/catalog/category/web_2026-13.2.png" alt="" onerror="this.style.visibility='hidden'">Mì Ý Jolly</a>
+          <a href="thucdon.html?cat=ga-sot-cay"><img src="https://jollibee.com.vn//media/catalog/category/web_2026-14.2.png" alt="" onerror="this.style.visibility='hidden'">Gà Sốt Cay</a>
+          <a href="thucdon.html?cat=burger-com"><img src="https://jollibee.com.vn//media/catalog/category/web_2026-16.2.png" alt="" onerror="this.style.visibility='hidden'">Burger/Cơm</a>
+          <a href="thucdon.html?cat=phan-an-phu"><img src="https://jollibee.com.vn//media/catalog/category/web_2026-17.png" alt="" onerror="this.style.visibility='hidden'">Phần Ăn Phụ</a>
+          <a href="thucdon.html?cat=trang-mieng"><img src="https://jollibee.com.vn//media/catalog/category/web_2026-19.png" alt="" onerror="this.style.visibility='hidden'">Món Tráng Miệng</a>
+          <a href="thucdon.html?cat=thuc-uong"><img src="https://jollibee.com.vn//media/catalog/category/web_2026-18.png" alt="" onerror="this.style.visibility='hidden'">Thức Uống</a>
+        </div></li>
+      <li><a href="khuyenmai.html">Khuyến mãi</a></li>
+      <li><a href="dichvu.html">Dịch vụ</a></li>
+      <li><a href="tintuc.html">Tin tức</a></li>
+      <li><a href="cuahang.html">Cửa hàng</a></li>
+      <li><a href="lienhe.html">Liên hệ</a></li>
+    </ul>
+    <div class="jb-right"><a class="jb-cart" id="jb-gio" href="giohang.html">Giỏ hàng <b class="jb-cart-n">0</b></a></div>
+  </div></header>
+</div>
 
 <!-- ===== KHỐI 1: BANNER TRƯỢT ===== -->
 <section class="jb-hero">
   <div class="slider" id="slider">
-    <div class="slider-khung"><div class="slider-day" id="heroItems"></div></div>
+    <div class="slider-khung"><div class="slider-day" id="heroItems">
+      <div class="slider-muc"><div class="bn"><img src="https://jollibee.com.vn/media/mageplaza/bannerslider/banner/image/b/a/banner_web_-_theme_summer_-_1920x794.jpg" alt="" onerror="this.style.display='none'"></div></div>
+      <div class="slider-muc"><div class="bn"><img src="https://jollibee.com.vn/media/mageplaza/bannerslider/banner/image/b/a/banner_web_1920x794px_r2_1_-compressed.jpg" alt="" onerror="this.style.display='none'"></div></div>
+      <div class="slider-muc"><div class="bn"><img src="https://jollibee.com.vn/media/mageplaza/bannerslider/banner/image/b/a/banner_web__m_jolly.jpg" alt="" onerror="this.style.display='none'"></div></div>
+      <div class="slider-muc"><div class="bn"><img src="https://jollibee.com.vn/media/mageplaza/bannerslider/banner/image/b/a/banner_web_kv_m_cay_phase_2-compressed_1.jpg" alt="" onerror="this.style.display='none'"></div></div>
+      <div class="slider-muc"><div class="bn"><img src="https://jollibee.com.vn/media/mageplaza/bannerslider/banner/image/b/a/banner_website_jbvn_-_combo_145k-compressed.jpg" alt="" onerror="this.style.display='none'"></div></div>
+      <div class="slider-muc"><div class="bn"><img src="https://jollibee.com.vn/media/mageplaza/bannerslider/banner/image/g/a/ga_sot_cay___banner_web_final-compressed1.jpg" alt="" onerror="this.style.display='none'"></div></div>
+      <div class="slider-muc"><div class="bn"><img src="https://jollibee.com.vn/media/mageplaza/bannerslider/banner/image/j/l/jlb_ckj_1920x794.jpg" alt="" onerror="this.style.display='none'"></div></div>
+  </div></div>
     <button class="slider-nut truoc" type="button" id="sTruoc" aria-label="Trước"><span class="jb-arrow">&#8249;</span></button>
     <button class="slider-nut sau" type="button" id="sSau" aria-label="Sau"><span class="jb-arrow">&#8250;</span></button>
-    <div class="slider-cham" id="heroDots"></div>
+    <div class="slider-cham" id="heroDots">
+    <button type="button" onclick="chuyenBanner(0); batDauTuChuyen();"></button>
+    <button type="button" onclick="chuyenBanner(1); batDauTuChuyen();"></button>
+    <button type="button" onclick="chuyenBanner(2); batDauTuChuyen();"></button>
+    <button type="button" onclick="chuyenBanner(3); batDauTuChuyen();"></button>
+    <button type="button" onclick="chuyenBanner(4); batDauTuChuyen();"></button>
+    <button type="button" onclick="chuyenBanner(5); batDauTuChuyen();"></button>
+    <button type="button" onclick="chuyenBanner(6); batDauTuChuyen();"></button>
+  </div>
   </div>
 </section>
 
@@ -27,7 +70,16 @@
 <!-- ===== KHỐI 3: DANH MỤC ===== -->
 <section class="sec"><div class="container">
   <h2 class="sec-title">Thực đơn</h2><p class="sec-sub">Chọn nhóm món bạn yêu thích</p>
-  <div class="cat-strip" id="catStrip"></div>
+  <div class="cat-strip" id="catStrip">
+    <a class="cat-chip" href="thucdon.html?cat=combo"><img src="https://jollibee.com.vn//media/catalog/category/web-12_1_1.png" alt="" onerror="this.style.visibility='hidden'">Combo Bán Chạy</a>
+    <a class="cat-chip" href="thucdon.html?cat=ga-gion"><img src="https://jollibee.com.vn//media/catalog/category/web_2026-15.2_1.png" alt="" onerror="this.style.visibility='hidden'">Gà Giòn Vui Vẻ</a>
+    <a class="cat-chip" href="thucdon.html?cat=mi-y"><img src="https://jollibee.com.vn//media/catalog/category/web_2026-13.2.png" alt="" onerror="this.style.visibility='hidden'">Mì Ý Jolly</a>
+    <a class="cat-chip" href="thucdon.html?cat=ga-sot-cay"><img src="https://jollibee.com.vn//media/catalog/category/web_2026-14.2.png" alt="" onerror="this.style.visibility='hidden'">Gà Sốt Cay</a>
+    <a class="cat-chip" href="thucdon.html?cat=burger-com"><img src="https://jollibee.com.vn//media/catalog/category/web_2026-16.2.png" alt="" onerror="this.style.visibility='hidden'">Burger/Cơm</a>
+    <a class="cat-chip" href="thucdon.html?cat=phan-an-phu"><img src="https://jollibee.com.vn//media/catalog/category/web_2026-17.png" alt="" onerror="this.style.visibility='hidden'">Phần Ăn Phụ</a>
+    <a class="cat-chip" href="thucdon.html?cat=trang-mieng"><img src="https://jollibee.com.vn//media/catalog/category/web_2026-19.png" alt="" onerror="this.style.visibility='hidden'">Món Tráng Miệng</a>
+    <a class="cat-chip" href="thucdon.html?cat=thuc-uong"><img src="https://jollibee.com.vn//media/catalog/category/web_2026-18.png" alt="" onerror="this.style.visibility='hidden'">Thức Uống</a>
+  </div>
 </div></section>
 
 <!-- ===== KHỐI 4: MÓN BÁN CHẠY ===== -->
@@ -46,10 +98,21 @@
 <!-- ===== KHỐI 6: TIN TỨC ===== -->
 <section class="sec nen-xam"><div class="container">
   <h2 class="sec-title">Tin tức</h2><p class="sec-sub">Cập nhật mới nhất từ Jollibee</p>
-  <div class="luoi luoi-3" id="newsGrid"></div>
+  <div class="luoi luoi-3" id="newsGrid">
+    <div class="news-card"><div class="ph">J</div><div class="bd"><small>2026-09-20</small><h5>Gà Giòn Vui Vẻ – ngon giòn rụm, triệu người yêu</h5><p>Gà Giòn Vui Vẻ được tẩm ướp đậm đà, chiên giòn rụm, giữ trọn độ mềm ngọt bên trong.</p></div></div>
+    <div class="news-card"><div class="ph">J</div><div class="bd"><small>2026-09-12</small><h5>Mì Ý Jolly phiên bản nhiều thịt, đậm phô mai</h5><p>Sốt bò bằm đậm đà cùng phô mai phủ dày, món ăn quen thuộc của mọi lứa tuổi.</p></div></div>
+    <div class="news-card"><div class="ph">J</div><div class="bd"><small>2026-09-01</small><h5>Combo cặp đôi ăn ý – ưu đãi đến 145.000đ</h5><p>Hai phần gà giòn, hai phần mì Ý, khoai tây chiên và nước ngọt cho buổi hẹn trọn vị.</p></div></div>
+  </div>
 </div></section>
 
-<div id="jb-footer"></div>
+<div id="jb-footer">
+  <footer class="jb-foot"><div class="container"><div class="foot-luoi">
+    <div><h5>Đồ án 2 – Thiết kế web cơ bản</h5><p>Website bán đồ ăn nhanh mô phỏng theo giao diện Jollibee Việt Nam.</p></div>
+    <div><h5>Liên kết</h5><div><a href="thucdon.html">Thực đơn</a></div><div><a href="khuyenmai.html">Khuyến mãi</a></div><div><a href="cuahang.html">Cửa hàng</a></div><div><a href="donhang.html">Đơn hàng của tôi</a></div></div>
+    <div><h5>Hỗ trợ</h5><div><a href="lienhe.html">Liên hệ</a></div><div><a href="tintuc.html">Tin tức</a></div><div><small>Hotline minh họa: 1900 xxxx</small></div></div>
+  </div><div class="sub">Sinh viên thực hiện: Vũ Tiến Phước – Đại học Công nghệ Kỹ thuật Hưng Yên.</div></div></footer>
+  <a class="chat-fab" href="lienhe.html">Trò chuyện cùng Jolly</a>
+</div>
 <script src="../js/dulieu.js"></script>
 <script src="../js/chung.js"></script>
 <script src="../js/trangchu.js"></script>
