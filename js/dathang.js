@@ -88,12 +88,13 @@ function khoiTaoDatHang() {
         location.href = "quantri.html";
         return;
     }
-    veDauTrangVaChanTrang("giohang.html");
+    capNhatDauTrang();
     nguoiDat = layNguoiDangNhap();
     if (nguoiDat == null) {                      // chưa đăng nhập thì sang trang đăng nhập
         location.href = "dangnhap.html?next=dathang.html";
         return;
     }
+    donGioHang();
     if (layDongGio().length == 0) {              // giỏ trống thì quay lại giỏ hàng
         location.href = "giohang.html";
         return;

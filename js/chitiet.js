@@ -57,16 +57,12 @@ function veSao(diem) {
 function veThongTinMon() {
     var mon = monDangXem;
     var dm = timDanhMuc(mon.danhMuc);
-    var ghiChuGia = "";
-    if (mon.giaCao > mon.gia) {
-        ghiChuGia = '<p class="muted nho">Giá thay đổi theo kích cỡ/lựa chọn kèm theo. Giỏ hàng tính theo giá thấp nhất.</p>';
-    }
     datHTML("detail",
         '<div class="chia md" style="--tl:5fr 7fr">' +
         '<div><img class="ct-anh" src="' + maHoaChu(anhMon(mon)) + '" alt="' + maHoaChu(mon.ten) + '" onerror="anhLoi(this)"></div>' +
         '<div><nav class="ct-duong-dan"><a href="thucdon.html">Thực đơn</a> / <a href="thucdon.html?cat=' + mon.danhMuc + '">' + maHoaChu(dm.ten) + '</a></nav>' +
         '<h1 class="ct-ten">' + maHoaChu(mon.ten) + '</h1><div class="stars" id="avg"></div>' +
-        '<div class="ct-gia">' + giaHienThi(mon) + '</div><p>' + maHoaChu(mon.moTa) + '</p>' + ghiChuGia +
+        '<div class="ct-gia">' + giaHienThi(mon) + '</div><p>' + maHoaChu(mon.moTa) + '</p>' +
         '<div class="ct-hang"><div class="qty"><button id="mi">−</button><input id="qv" value="1" inputmode="numeric"><button id="pl">+</button></div>' +
         '<button class="btn-jb" id="add">Thêm vào giỏ</button><button class="btn-jb yellow" id="buy">Mua ngay</button></div></div></div>');
     layId("mi").onclick = function () { tangGiamSoLuong(-1); };
@@ -114,9 +110,8 @@ function guiDanhGia() {
         noiDung: noiDung,
         ngay: new Date().toISOString()
     });
-    layId("rt").value = "";
-    datChu("re", "");
     veDanhGia();
+    veKhungDanhGia();
     thongBao("Cảm ơn bạn đã đánh giá!");
 }
 
@@ -132,6 +127,12 @@ function veKhungDanhGia() {
             '<div class="danh-gia-gui"><select id="rs" class="o-nhap"><option value="5">5 sao</option><option value="4">4 sao</option><option value="3">3 sao</option><option value="2">2 sao</option><option value="1">1 sao</option></select>' +
             '<textarea id="rt" class="o-nhap" rows="2" placeholder="Chia sẻ cảm nhận của bạn"></textarea>' +
             '<div class="invalid-msg" id="re"></div><button class="btn-jb" id="rb">Gửi đánh giá</button></div>');
+        var cu = layDanhGiaCuaKhach(nguoi.email, monDangXem.id);     // đã đánh giá rồi thì hiện lại để sửa
+        if (cu != null) {
+            layId("rs").value = cu.soSao;
+            layId("rt").value = cu.noiDung;
+            layId("rb").textContent = "Cập nhật đánh giá";
+        }
         layId("rb").onclick = guiDanhGia;
     }
 }
@@ -154,7 +155,7 @@ function veMonLienQuan() {
 }
 
 function khoiTaoChiTiet() {
-    veDauTrangVaChanTrang("thucdon.html");
+    capNhatDauTrang();
     monDangXem = timMon(layThamSo("id"));
     if (monDangXem == null) {
         datHTML("detail", '<div class="text-center" style="padding:3rem 0"><h4>Không tìm thấy món ăn.</h4><a class="btn-jb" href="thucdon.html">Về thực đơn</a></div>');

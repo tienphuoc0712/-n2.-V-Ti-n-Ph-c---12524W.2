@@ -25,6 +25,6 @@ function guiLienHe(e) {
 }
 
 function khoiTaoLienHe() {
-    veDauTrangVaChanTrang("lienhe.html");
+    capNhatDauTrang();
     layId("f").onsubmit = guiLienHe;
 }

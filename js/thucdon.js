@@ -3,18 +3,14 @@
 var danhMucDangXem = "";      // mã danh mục lấy từ địa chỉ (?cat=...), rỗng = tất cả
 var tatCaMon = [];
 
-// Vẽ các tab danh mục phía trên
-function veTabDanhMuc() {
-    var html = '<a href="thucdon.html" class="' + (danhMucDangXem == "" ? "on" : "") + '">Tất cả</a>';
-    var dm = layDanhMuc();
-    for (var i = 0; i < dm.length; i++) {
-        var lop = "";
-        if (dm[i].ma == danhMucDangXem) {
-            lop = "on";
+// Các tab danh mục viết sẵn trong html; JS chỉ tô đậm tab đang xem (so với ?cat=... trên địa chỉ)
+function danhDauTab() {
+    var cacTab = layId("tabs").getElementsByTagName("a");
+    for (var i = 0; i < cacTab.length; i++) {
+        if (cacTab[i].getAttribute("data-cat") == danhMucDangXem) {
+            cacTab[i].classList.add("on");
         }
-        html = html + '<a href="thucdon.html?cat=' + dm[i].ma + '" class="' + lop + '">' + maHoaChu(dm[i].ten) + '</a>';
     }
-    datHTML("tabs", html);
 }
 
 // Lọc + sắp xếp rồi vẽ lại danh sách món
@@ -65,11 +61,11 @@ function locMon() {
 }
 
 function khoiTaoThucDon() {
-    veDauTrangVaChanTrang("thucdon.html");
+    capNhatDauTrang();
     danhMucDangXem = layThamSo("cat");
     tatCaMon = layMonAn(false);
     layId("q").value = layThamSo("q");
-    veTabDanhMuc();
+    danhDauTab();
     layId("q").oninput = locMon;
     layId("price").onchange = locMon;
     layId("sort").onchange = locMon;

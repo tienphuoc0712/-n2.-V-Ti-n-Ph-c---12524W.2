@@ -28,6 +28,15 @@ var BUOC_TIEP = {
     giao_that_bai: []
 };
 
+// Đơn "đến lấy" tại cửa hàng không có khâu giao hàng:
+// Chờ xác nhận -> Đã xác nhận -> Đang chuẩn bị -> Đã giao (khách đã nhận)
+function layBuocTiep(don) {
+    if (don.hinhThuc == "den_lay" && don.trangThai == "dang_chuan_bi") {
+        return ["da_giao"];
+    }
+    return BUOC_TIEP[don.trangThai];
+}
+
 // ================= 1. LƯU / ĐỌC DỮ LIỆU (localStorage) =================
 // localStorage giống một "ngăn kéo" trong trình duyệt, chỉ lưu được chữ.
 // Nên khi lưu phải đổi mảng/đối tượng thành chuỗi (JSON.stringify), khi đọc đổi ngược lại (JSON.parse).
@@ -214,13 +223,9 @@ function anhLoi(img) {
     img.src = anhMon({ ten: img.alt, danhMuc: "combo" });
 }
 
-// Món có nhiều mức giá (giaCao > gia) thì hiện chữ "Từ ..."
+// Mỗi món chỉ có MỘT mức giá (tiền giỏ hàng, đơn hàng đều tính theo giá này)
 function giaHienThi(mon) {
-    var chu = dinhDangTien(mon.gia);
-    if (mon.giaCao > mon.gia) {
-        chu = "<small>Từ </small>" + chu;
-    }
-    return chu;
+    return dinhDangTien(mon.gia);
 }
 
 // ================= 4. GIỎ HÀNG =================
@@ -362,12 +367,39 @@ function layDongGio() {
 }
 
 function tongSoMon() {
-    var gioHang = layGioHang();
+    var dong = layDongGio();         // chỉ đếm món còn đang bán
     var tong = 0;
-    for (var i = 0; i < gioHang.length; i++) {
-        tong = tong + gioHang[i].soLuong;
+    for (var i = 0; i < dong.length; i++) {
+        tong = tong + dong[i].soLuong;
     }
     return tong;
+}
+
+// Xóa khỏi giỏ các món đã ngừng bán / bị xóa. Trả về tên các món bị xóa
+function xoaMonNgungBan() {
+    var gioHang = layGioHang();
+    var con = [];
+    var daXoa = [];
+    for (var i = 0; i < gioHang.length; i++) {
+        var mon = timMon(gioHang[i].id);
+        if (mon != null && mon.dangBan) {
+            con.push(gioHang[i]);
+        } else {
+            daXoa.push(mon != null ? mon.ten : "một món");
+        }
+    }
+    if (daXoa.length > 0) {
+        luuGioHang(con);
+    }
+    return daXoa;
+}
+
+// Dọn giỏ rồi báo cho khách biết món nào đã bị bỏ
+function donGioHang() {
+    var ds = xoaMonNgungBan();
+    if (ds.length > 0) {
+        thongBao("Đã bỏ khỏi giỏ (ngừng bán): " + ds.join(", "));
+    }
 }
 
 function layTamTinh() {
@@ -580,6 +612,15 @@ function timDon(ma) {
     return null;
 }
 
+// Mã đơn: JB + 6 số cuối của thời gian + 2 số ngẫu nhiên; lặp lại cho đến khi không trùng
+function taoMaDon() {
+    var ma = "";
+    do {
+        ma = "JB" + String(Date.now()).slice(-6) + String(Math.floor(Math.random() * 90) + 10);
+    } while (timDon(ma) != null);
+    return ma;
+}
+
 // Tạo đơn từ giỏ hàng. Trả về { ok: true, don: {...} } hoặc { ok: false, thongBao: "..." }
 function taoDonHang(thongTin) {
     if (duocMuaHang() == false) {
@@ -606,7 +647,7 @@ function taoDonHang(thongTin) {
         mon.push({ id: dong[i].mon.id, ten: dong[i].mon.ten, gia: dong[i].mon.gia, soLuong: dong[i].soLuong });
     }
     var don = {
-        ma: "JB" + String(Date.now()).slice(-8),
+        ma: taoMaDon(),
         email: thongTin.email,
         ngay: new Date().toISOString(),
         trangThai: "cho_xac_nhan",
@@ -635,7 +676,7 @@ function doiTrangThaiDon(ma, trangThaiMoi) {
     var ds = layDonHang();
     for (var i = 0; i < ds.length; i++) {
         if (ds[i].ma == ma) {
-            var duocPhep = BUOC_TIEP[ds[i].trangThai];
+            var duocPhep = layBuocTiep(ds[i]);
             if (duocPhep.indexOf(trangThaiMoi) == -1) {
                 return false;
             }
@@ -670,8 +711,25 @@ function layDanhGia(idMon) {
     return kq;
 }
 
+// Mỗi khách chỉ có MỘT đánh giá cho mỗi món: đã đánh giá rồi thì cập nhật lại
+function layDanhGiaCuaKhach(email, idMon) {
+    var ds = layDanhGia(idMon);
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].email == email) {
+            return ds[i];
+        }
+    }
+    return null;
+}
+
 function themDanhGia(danhGia) {
-    var ds = docDuLieu("jb_danhGia", []);
+    var tatCa = docDuLieu("jb_danhGia", []);
+    var ds = [];
+    for (var i = 0; i < tatCa.length; i++) {
+        if (!(tatCa[i].idMon == danhGia.idMon && tatCa[i].email == danhGia.email)) {
+            ds.push(tatCa[i]);
+        }
+    }
     ds.unshift(danhGia);
     ghiDuLieu("jb_danhGia", ds);
 }
@@ -766,36 +824,10 @@ document.addEventListener("keydown", function (e) {
     }
 });
 
-// Đầu trang + chân trang: vẽ bằng JS để sửa một chỗ là đổi toàn bộ các trang.
-// trangHienTai = tên file của trang đang mở (để tô sáng mục menu tương ứng)
-function veDauTrangVaChanTrang(trangHienTai) {
+// Đầu trang + chân trang đã viết sẵn trong từng file html.
+// JS chỉ cập nhật 2 chỗ phụ thuộc người dùng: phần tài khoản (thanh vàng) và nút giỏ hàng.
+function capNhatDauTrang() {
     var nguoi = layNguoiDangNhap();
-    var menu = [
-        ["trangchu.html", "Trang chủ"], ["thucdon.html", "Thực đơn"], ["khuyenmai.html", "Khuyến mãi"],
-        ["dichvu.html", "Dịch vụ"], ["tintuc.html", "Tin tức"], ["cuahang.html", "Cửa hàng"], ["lienhe.html", "Liên hệ"]
-    ];
-
-    // Menu lớn hiện ra khi rê chuột vào "Thực đơn"
-    var menuLon = "";
-    var dm = layDanhMuc();
-    for (var i = 0; i < dm.length; i++) {
-        menuLon = menuLon + '<a href="thucdon.html?cat=' + dm[i].ma + '"><img src="' + maHoaChu(dm[i].anh) + '" alt="" onerror="this.style.visibility=\'hidden\'">' + maHoaChu(dm[i].ten) + '</a>';
-    }
-
-    var dsMenu = "";
-    for (var j = 0; j < menu.length; j++) {
-        var lop = "";
-        if (menu[j][0] == trangHienTai) {
-            lop = "active";
-        }
-        dsMenu = dsMenu + '<li><a href="' + menu[j][0] + '" class="' + lop + '">' + menu[j][1] + '</a>';
-        if (menu[j][0] == "thucdon.html") {
-            dsMenu = dsMenu + '<div class="jb-mega">' + menuLon + '</div>';
-        }
-        dsMenu = dsMenu + "</li>";
-    }
-
-    // Phần tài khoản ở thanh vàng trên cùng
     var taiKhoan = '<a href="dangnhap.html">ĐĂNG KÝ / ĐĂNG NHẬP</a>';
     if (nguoi != null) {
         taiKhoan = '<a href="donhang.html">' + maHoaChu(nguoi.hoTen) + '</a><span class="sep"></span>';
@@ -804,24 +836,10 @@ function veDauTrangVaChanTrang(trangHienTai) {
         }
         taiKhoan = taiKhoan + '<a href="#" onclick="dangXuat(); return false;">ĐĂNG XUẤT</a>';
     }
-
-    datHTML("jb-header",
-        '<div class="jb-top"><a href="#">VN</a><span class="sep"></span><a href="#">EN</a><span class="sep"></span>' + taiKhoan + '</div>' +
-        '<header class="jb-head"><div class="jb-head-in">' +
-        '<a class="jb-logo" href="trangchu.html">Jollibee<small>Đồ án 2 – Vũ Tiến Phước</small></a>' +
-        '<button class="jb-burger" aria-label="Menu" onclick="document.getElementById(\'menuChinh\').classList.toggle(\'open\')">&#9776;</button>' +
-        '<ul class="jb-nav" id="menuChinh">' + dsMenu + '</ul>' +
-        '<div class="jb-right">' + (duocMuaHang() ? '<a class="jb-cart" href="giohang.html">Giỏ hàng <b class="jb-cart-n">0</b></a>' : '') + '</div>' +
-        '</div></header>');
-
-    datHTML("jb-footer",
-        '<footer class="jb-foot"><div class="container"><div class="foot-luoi">' +
-        '<div><h5>Đồ án 2 – Thiết kế web cơ bản</h5><p>Website bán đồ ăn nhanh mô phỏng theo giao diện Jollibee Việt Nam.</p></div>' +
-        '<div><h5>Liên kết</h5><div><a href="thucdon.html">Thực đơn</a></div><div><a href="khuyenmai.html">Khuyến mãi</a></div><div><a href="cuahang.html">Cửa hàng</a></div><div><a href="donhang.html">Đơn hàng của tôi</a></div></div>' +
-        '<div><h5>Hỗ trợ</h5><div><a href="lienhe.html">Liên hệ</a></div><div><a href="tintuc.html">Tin tức</a></div><div><small>Hotline minh họa: 1900 xxxx</small></div></div>' +
-        '</div><div class="sub">Sinh viên thực hiện: Vũ Tiến Phước – Đại học Công nghệ Kỹ thuật Hưng Yên.</div></div></footer>' +
-        '<a class="chat-fab" href="lienhe.html">Trò chuyện cùng Jolly</a>');
-
+    datHTML("jb-tk", taiKhoan);
+    if (duocMuaHang() == false) {                  // nhân viên / quản trị không có giỏ hàng
+        layId("jb-gio").style.display = "none";
+    }
     capNhatSoLuongGio();
 }
 

@@ -115,11 +115,12 @@ function khoiTaoGioHang() {
         location.href = "quantri.html";
         return;
     }
-    veDauTrangVaChanTrang("giohang.html");
+    capNhatDauTrang();
     if (layNguoiDangNhap() == null) {          // phải đăng nhập mới dùng giỏ hàng
         location.href = "dangnhap.html?next=giohang.html";
         return;
     }
+    donGioHang();
     nhoLaiMaDaDung();
     var o = document.getElementsByName("mode");
     for (var i = 0; i < o.length; i++) {

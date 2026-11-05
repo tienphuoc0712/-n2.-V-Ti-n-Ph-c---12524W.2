@@ -1,7 +1,7 @@
 // ===== KHUYẾN MÃI =====
 
 function khoiTaoKhuyenMai() {
-    veDauTrangVaChanTrang("khuyenmai.html");
+    capNhatDauTrang();
     var ds = layKhuyenMai(false);
     var html = "";
     for (var i = 0; i < ds.length; i++) {

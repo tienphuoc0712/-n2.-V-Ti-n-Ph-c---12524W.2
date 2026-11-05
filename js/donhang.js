@@ -38,7 +38,7 @@ function bamHuyDon(ma) {
 }
 
 function khoiTaoDonHang() {
-    veDauTrangVaChanTrang("");
+    capNhatDauTrang();
     nguoiXem = layNguoiDangNhap();
     if (nguoiXem == null) {
         location.href = "dangnhap.html?next=donhang.html";

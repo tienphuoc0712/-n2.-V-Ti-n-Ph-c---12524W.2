@@ -168,9 +168,12 @@ function moChiTietDon(ma) {
         dong = dong + '<div class="sum-line"><span>' + o.mon[i].soLuong + ' × ' + maHoaChu(o.mon[i].ten) + '</span><span>' + dinhDangTien(o.mon[i].gia * o.mon[i].soLuong) + '</span></div>';
     }
     var nut = "";
-    var buoc = BUOC_TIEP[o.trangThai];
+    var buoc = layBuocTiep(o);
     for (var k = 0; k < buoc.length; k++) {
         var chu = buoc[k] == "da_huy" ? "Hủy đơn" : "→ " + TRANG_THAI[buoc[k]];
+        if (buoc[k] == "da_giao" && o.hinhThuc == "den_lay") {
+            chu = "→ Khách đã nhận hàng";
+        }
         nut = nut + '<button class="btn-jb st" data-s="' + buoc[k] + '" onclick="doiTrangThaiQT(\'' + o.ma + '\', \'' + buoc[k] + '\')">' + chu + '</button>';
     }
     if (nut == "") {
@@ -268,9 +271,6 @@ function luuMon() {
                 ds[i].ten = ten;
                 ds[i].danhMuc = layId("pc").value;
                 ds[i].gia = gia;
-                if (!(ds[i].giaCao > gia)) {
-                    ds[i].giaCao = gia;
-                }
                 ds[i].moTa = layGiaTri("pd");
                 ds[i].anh = layGiaTri("pi");
                 ds[i].banChay = layId("ph").checked;
@@ -284,7 +284,7 @@ function luuMon() {
                 idMoi = ds[j].id;
             }
         }
-        ds.push({ id: idMoi + 1, danhMuc: layId("pc").value, ten: ten, moTa: layGiaTri("pd"), gia: gia, giaCao: gia, anh: layGiaTri("pi"), banChay: layId("ph").checked, dangBan: layId("pa").checked });
+        ds.push({ id: idMoi + 1, danhMuc: layId("pc").value, ten: ten, moTa: layGiaTri("pd"), gia: gia, anh: layGiaTri("pi"), banChay: layId("ph").checked, dangBan: layId("pa").checked });
     }
     luuMonAn(ds);
     dongHopThoai("pm");

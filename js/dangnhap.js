@@ -67,7 +67,7 @@ function xuLyDangKy(e) {
 }
 
 function khoiTaoDangNhap() {
-    veDauTrangVaChanTrang("");
+    capNhatDauTrang();
     var cacTab = layId("tab").getElementsByTagName("a");
     for (var i = 0; i < cacTab.length; i++) {
         cacTab[i].onclick = function (e) {
