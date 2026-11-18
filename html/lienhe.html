@@ -40,15 +40,8 @@
 
 <div class="page-banner"><h1>Liên hệ</h1><p>Chúng tôi luôn lắng nghe bạn</p></div>
 
-<div class="container sec khung-lh"><div class="box">
-  <h4>GỬI GÓP Ý CHO CỬA HÀNG</h4>
-  <form id="f" novalidate>
-    <div class="truong"><label class="nhan">Họ và tên</label><input id="n" class="o-nhap"></div>
-    <div class="truong"><label class="nhan">Email</label><input id="e" class="o-nhap" type="email"></div>
-    <div class="truong"><label class="nhan">Nội dung</label><textarea id="m" rows="4" class="o-nhap"></textarea></div>
-    <div class="invalid-msg mb2" id="err"></div><button class="btn-jb">Gửi phản hồi</button>
-  </form>
-</div></div>
+<div class="container sec khung-lh"><div class="box" id="thongTin"></div>
+  <p class="text-center nho muted mt3">Muốn gửi ý kiến, đánh giá hoặc góp ý? Bấm nút <b>“Trò chuyện cùng Jolly”</b> ở góc dưới bên phải màn hình.</p></div>
 
 <div id="jb-footer">
   <footer class="jb-foot"><div class="container"><div class="foot-luoi">
@@ -56,9 +49,10 @@
     <div><h5>Liên kết</h5><div><a href="thucdon.html">Thực đơn</a></div><div><a href="khuyenmai.html">Khuyến mãi</a></div><div><a href="cuahang.html">Cửa hàng</a></div><div><a href="donhang.html">Đơn hàng của tôi</a></div></div>
     <div><h5>Hỗ trợ</h5><div><a href="lienhe.html">Liên hệ</a></div><div><a href="tintuc.html">Tin tức</a></div><div><small>Hotline minh họa: 1900 xxxx</small></div></div>
   </div><div class="sub">Sinh viên thực hiện: Vũ Tiến Phước – Đại học Công nghệ Kỹ thuật Hưng Yên.</div></div></footer>
-  <a class="chat-fab" href="lienhe.html">Trò chuyện cùng Jolly</a>
+  <a class="chat-fab" href="#" onclick="moTroChuyen(); return false;">Trò chuyện cùng Jolly</a>
 </div>
 <script src="../js/dulieu.js"></script>
+<script src="../js/qr.js"></script>
 <script src="../js/chung.js"></script>
 <script src="../js/lienhe.js"></script>
 </body>

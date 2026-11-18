@@ -30,6 +30,19 @@ function veTomTat() {
     datChu("s2", dinhDangTien(t.phiGiao));
     datChu("s3", "-" + dinhDangTien(t.giamGia));
     datChu("s4", dinhDangTien(t.tong));
+    veQRDatHang(t.tong);
+}
+
+// Chọn "Chuyển khoản" thì hiện mã QR theo đúng số tiền của đơn đang đặt
+function veQRDatHang(tong) {
+    var o = layId("qrBox");
+    if (layRadio("pay") == "bank") {
+        o.style.display = "";
+        o.innerHTML = '<label class="nhan">Quét mã QR để chuyển khoản</label>' + veKhungQR(tong, "JOLLIBEE THANH TOAN");
+    } else {
+        o.style.display = "none";
+        o.innerHTML = "";
+    }
 }
 
 // Bấm "Xác nhận đặt hàng"
@@ -75,9 +88,13 @@ function xacNhanDatHang() {
         return;
     }
     try { sessionStorage.removeItem("jb_ma"); } catch (loi) { }
+    var khungQR = "";
+    if (kq.don.thanhToan == "bank") {           // chuyển khoản: mã QR theo đúng tổng tiền và mã đơn vừa tạo
+        khungQR = '<div class="dh-qr"><h5>Quét mã để thanh toán đơn ' + kq.don.ma + '</h5>' + veKhungQR(kq.don.tong, kq.don.ma) + '</div>';
+    }
     datHTML("wrap",
         '<div class="dh-xong"><div class="dau-tick">✔</div><h2>ĐẶT HÀNG THÀNH CÔNG</h2>' +
-        '<p>Mã đơn hàng của bạn: <b>' + kq.don.ma + '</b><br>Tổng thanh toán: <b>' + dinhDangTien(kq.don.tong) + '</b><br>Trạng thái: Chờ xác nhận</p>' +
+        '<p>Mã đơn hàng của bạn: <b>' + kq.don.ma + '</b><br>Tổng thanh toán: <b>' + dinhDangTien(kq.don.tong) + '</b><br>Trạng thái: Chờ xác nhận</p>' + khungQR +
         '<a class="btn-jb" href="donhang.html">Theo dõi đơn hàng</a> <a class="btn-line" href="thucdon.html">Tiếp tục mua</a></div>');
     capNhatSoLuongGio();
     window.scrollTo(0, 0);
@@ -114,6 +131,10 @@ function khoiTaoDatHang() {
     for (var i = 0; i < o.length; i++) {
         o[i].checked = o[i].value == layHinhThuc();
         o[i].onchange = veTomTat;
+    }
+    var pay = document.getElementsByName("pay");
+    for (var k = 0; k < pay.length; k++) {
+        pay[k].onchange = veTomTat;
     }
     layId("place").onclick = xacNhanDatHang;
     veTomTat();

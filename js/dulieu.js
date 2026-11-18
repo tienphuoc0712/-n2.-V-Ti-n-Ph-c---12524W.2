@@ -52,3 +52,19 @@ var DU_LIEU = {
   {"id":3,"tieuDe":"Giảm 20.000đ cho khách mới","ma":"WELCOME20","loai":"so_tien","giaTri":20000,"toiThieu":80000,"moTa":"Dành cho đơn đầu tiên từ 80.000đ.","dangBan":true}
  ]
 };
+
+/* ===== THÔNG TIN CỬA HÀNG VÀ TÀI KHOẢN NHẬN TIỀN (sửa các giá trị mẫu ở đây) =====
+   - Mã QR Zalo được tạo tự động từ số Zalo bên dưới.
+   - Mã QR chuyển khoản theo chuẩn VietQR, số tiền mỗi đơn tự điền; bin là mã ngân hàng (MB: 970422,
+     Vietcombank: 970436, Techcombank: 970407, BIDV: 970418, VietinBank: 970415, Agribank: 970405). */
+var CUA_HANG = {
+    ten: "Jollibee – Thông tin chủ cửa hàng",
+    chu: "Vũ Tiến Phước",
+    chucVu: "Chủ cửa hàng",
+    sdt: "0983184190",
+    zalo: "0983184190",
+    email: "tienphuoc0712@gmail.com",
+    diaChi: "Đại học Công nghệ Kỹ thuật Hưng Yên.",
+    gioMoCua: "8:00 – 22:00 (hằng ngày)",
+    nganHang: { bin: "970422", ten: "MB Bank", soTK: "0983184190", chuTK: "VU TIEN PHUOC" }
+};

@@ -843,4 +843,140 @@ function capNhatDauTrang() {
     capNhatSoLuongGio();
 }
 
+// ================= 10. THANH TOÁN QR, THÔNG TIN LIÊN HỆ, TRÒ CHUYỆN =================
+
+// Mã kiểm tra CRC16 (CCITT) mà chuẩn VietQR yêu cầu ở cuối chuỗi
+function tinhCRC16(chuoi) {
+    var crc = 0xFFFF;
+    for (var i = 0; i < chuoi.length; i++) {
+        crc = crc ^ (chuoi.charCodeAt(i) << 8);
+        for (var b = 0; b < 8; b++) {
+            if (crc & 0x8000) {
+                crc = ((crc << 1) ^ 0x1021) & 0xFFFF;
+            } else {
+                crc = (crc << 1) & 0xFFFF;
+            }
+        }
+    }
+    return ("0000" + crc.toString(16).toUpperCase()).slice(-4);
+}
+
+// Một trường dữ liệu của VietQR: mã (2 số) + độ dài (2 số) + giá trị
+function truongQR(ma, giaTri) {
+    return ma + ("0" + giaTri.length).slice(-2) + giaTri;
+}
+
+// Chuỗi VietQR chứa sẵn ngân hàng, số tài khoản, số tiền và nội dung chuyển khoản
+function taoChuoiVietQR(soTien, noiDung) {
+    var nh = CUA_HANG.nganHang;
+    var noiDungSach = noiDung.replace(/[^A-Za-z0-9 ]/g, "").slice(0, 25);
+    var taiKhoan = truongQR("00", nh.bin) + truongQR("01", nh.soTK);
+    var chuoi = truongQR("00", "01") + truongQR("01", "12") +
+        truongQR("38", truongQR("00", "A000000727") + truongQR("01", taiKhoan) + truongQR("02", "QRIBFTTA")) +
+        truongQR("53", "704") + truongQR("54", String(Math.round(soTien))) + truongQR("58", "VN") +
+        truongQR("62", truongQR("08", noiDungSach)) + "6304";
+    return chuoi + tinhCRC16(chuoi);
+}
+
+// Vẽ mã QR (thẻ svg) từ một chuỗi bất kỳ, dùng thư viện qr.js
+function veMaQR(chuoi) {
+    var qr = qrcode(0, "M");
+    qr.addData(chuoi);
+    qr.make();
+    return qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+}
+
+// Khung thanh toán chuyển khoản: mã QR + thông tin tài khoản + số tiền + nội dung
+function veKhungQR(soTien, noiDung) {
+    var nh = CUA_HANG.nganHang;
+    var dong = function (nhan, giaTri) {
+        return '<div class="qr-dong"><span>' + nhan + '</span><b>' + maHoaChu(giaTri) + '</b></div>';
+    };
+    return '<div class="qr-khung"><div class="qr-anh">' + veMaQR(taoChuoiVietQR(soTien, noiDung)) + '</div>' +
+        '<div class="qr-tt">' + dong("Ngân hàng", nh.ten) + dong("Số tài khoản", nh.soTK) + dong("Chủ tài khoản", nh.chuTK) +
+        '<div class="qr-dong"><span>Số tiền</span><b class="qr-tien">' + dinhDangTien(soTien) + '</b></div>' +
+        dong("Nội dung", noiDung) + '</div></div>' +
+        '<p class="nho muted qr-ghi">Mở ứng dụng ngân hàng, chọn quét mã QR: số tiền và nội dung đã được điền sẵn.</p>';
+}
+
+// Hộp thoại dùng chung: tạo một lần, mỗi lần gọi chỉ đổi tiêu đề và nội dung
+function hienHopThoai(tieuDe, noiDung) {
+    var hop = document.getElementById("hop-chung");
+    if (hop == null) {
+        hop = document.createElement("div");
+        hop.className = "hop-nen";
+        hop.id = "hop-chung";
+        hop.innerHTML = '<div class="hop"><div class="hop-dau"><h5 id="hop-chung-t"></h5>' +
+            '<button class="hop-dong" onclick="dongHopThoai(\'hop-chung\')">&times;</button></div>' +
+            '<div class="hop-than" id="hop-chung-n"></div></div>';
+        document.body.appendChild(hop);
+    }
+    datChu("hop-chung-t", tieuDe);
+    datHTML("hop-chung-n", noiDung);
+    moHopThoai("hop-chung");
+}
+
+// Thông tin chủ cửa hàng và mã QR Zalo (dùng ở trang Liên hệ)
+function veThongTinCuaHang() {
+    var c = CUA_HANG;
+    var dong = function (nhan, giaTri) {
+        return '<div class="lh-dong"><span>' + nhan + '</span><b>' + maHoaChu(giaTri) + '</b></div>';
+    };
+    return '<div class="lh-khung"><div class="lh-tt"><h5>' + maHoaChu(c.ten) + '</h5>' +
+        dong(c.chucVu, c.chu) + dong("Số điện thoại", c.sdt) + dong("Zalo", c.zalo) + dong("Email", c.email) +
+        dong("Địa chỉ", c.diaChi) + dong("Giờ mở cửa", c.gioMoCua) + '</div>' +
+        '<div class="lh-zalo"><div class="qr-anh">' + veMaQR("https://zalo.me/" + c.zalo.replace(/[^0-9]/g, "")) + '</div>' +
+        '<b>Quét mã để nhắn Zalo</b><small class="muted">Tư vấn đặt tiệc sinh nhật, đơn hàng lớn</small></div></div>';
+}
+
+// Khung "Trò chuyện cùng Jolly" ở góc dưới bên phải: khách để lại ý kiến, đánh giá, góp ý
+function moTroChuyen() {
+    var khung = document.getElementById("chatPanel");
+    if (khung == null) {
+        khung = document.createElement("div");
+        khung.className = "chat-panel";
+        khung.id = "chatPanel";
+        khung.innerHTML = '<div class="chat-dau"><b>Trò chuyện cùng Jolly</b>' +
+            '<button class="hop-dong" onclick="moTroChuyen()" aria-label="Đóng">&times;</button></div>' +
+            '<div class="chat-than"><div class="chat-bong">Xin chào! Jolly rất muốn nghe ý kiến, đánh giá hoặc góp ý của bạn về món ăn và dịch vụ.</div>' +
+            '<form id="fGopY" novalidate>' +
+            '<label class="nhan">Họ và tên</label><input id="gy-n" class="o-nhap">' +
+            '<label class="nhan">Email</label><input id="gy-e" class="o-nhap" type="email">' +
+            '<label class="nhan">Ý kiến, góp ý của bạn</label><textarea id="gy-m" rows="3" class="o-nhap"></textarea>' +
+            '<div class="invalid-msg" id="gy-err"></div><button class="btn-jb w100 mt2">Gửi cho Jolly</button></form></div>';
+        document.body.appendChild(khung);
+        layId("fGopY").onsubmit = guiGopY;
+        var nguoi = layNguoiDangNhap();
+        if (nguoi != null) {
+            layId("gy-n").value = nguoi.hoTen;
+            layId("gy-e").value = nguoi.email;
+        }
+    }
+    khung.classList.toggle("show");
+}
+
+// Gửi ý kiến: kiểm tra rồi lưu vào localStorage (khóa jb_lienHe)
+function guiGopY(e) {
+    e.preventDefault();
+    var ten = layGiaTri("gy-n");
+    var email = layGiaTri("gy-e");
+    var noiDung = layGiaTri("gy-m");
+    var loi = "";
+    if (ten == "" || noiDung == "") {
+        loi = "Vui lòng nhập họ tên và ý kiến.";
+    } else if (emailHopLe(email) == false) {
+        loi = "Email không hợp lệ.";
+    }
+    datChu("gy-err", loi);
+    if (loi != "") {
+        return;
+    }
+    var ds = docDuLieu("jb_lienHe", []);
+    ds.unshift({ ten: ten, email: email, noiDung: noiDung, ngay: new Date().toISOString() });
+    ghiDuLieu("jb_lienHe", ds);
+    layId("gy-m").value = "";
+    thongBao("Cảm ơn bạn! Jolly đã nhận được ý kiến của bạn.");
+    moTroChuyen();
+}
+
 khoiTaoDuLieu();

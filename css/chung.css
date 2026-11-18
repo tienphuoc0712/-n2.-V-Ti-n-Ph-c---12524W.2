@@ -178,3 +178,32 @@ textarea.o-nhap{resize:vertical}
  .jb-head-in{flex-wrap:wrap;gap:8px}.jb-right{padding-bottom:12px}
  .jb-top{clip-path:none;font-size:12px;padding:0 12px}
 }
+
+/* ===== MÃ QR THANH TOÁN, THÔNG TIN LIÊN HỆ, KHUNG TRÒ CHUYỆN ===== */
+.qr-khung{display:flex;flex-wrap:wrap;gap:16px;align-items:center;border:2px dashed var(--red);border-radius:16px;padding:14px;background:#fff}
+.qr-anh{width:190px;flex:0 0 190px;margin:0 auto}
+.qr-anh svg{display:block;width:100%;height:auto}
+.qr-tt{flex:1;min-width:200px}
+.qr-dong{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:14px}
+.qr-dong span{color:var(--gray)}
+.qr-dong b{text-align:right}
+.qr-tien{color:var(--red);font-size:20px}
+.qr-ghi{margin:8px 0 0}
+.dh-qr{max-width:620px;margin:1.5rem auto 0;text-align:left}
+.dh-qr h5{text-align:center;font-weight:900;color:var(--red)}
+.lh-khung{display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.lh-tt{flex:1;min-width:250px}
+.lh-tt h5{font-weight:900;color:var(--red);text-transform:uppercase;margin-bottom:8px}
+.lh-dong{display:flex;gap:12px;padding:7px 0;border-bottom:1px solid #f0f0f0}
+.lh-dong span{flex:0 0 110px;color:var(--gray)}
+.lh-zalo{flex:0 0 210px;text-align:center;margin:0 auto}
+.lh-zalo .qr-anh{width:190px;border:3px solid var(--red);border-radius:16px;padding:6px;background:#fff}
+.lh-zalo b{display:block;margin-top:8px;color:var(--red)}
+.lh-zalo small{display:block}
+.chat-panel{position:fixed;right:16px;bottom:146px;width:320px;max-width:calc(100vw - 32px);z-index:901;background:#fff;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.3);display:none;overflow:hidden}
+.chat-panel.show{display:block}
+.chat-dau{background:var(--red);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.chat-dau .hop-dong{color:#fff}
+.chat-than{padding:14px;max-height:70vh;overflow:auto}
+.chat-bong{background:var(--cream);border-radius:14px 14px 14px 2px;padding:10px 12px;margin-bottom:10px;font-size:14px}
+@media(max-width:576px){.lh-dong span{flex-basis:90px}.qr-anh{flex-basis:170px;width:170px}}

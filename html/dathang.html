@@ -50,6 +50,7 @@
       <div class="full"><label class="nhan dong" style="display:block">Hình thức nhận hàng</label><label class="chon"><input type="radio" name="mode" value="giao_tan_noi"> Giao tận nơi</label><label><input type="radio" name="mode" value="den_lay"> Đến lấy tại cửa hàng</label></div>
       <div class="full"><label class="nhan" style="display:block">Phương thức thanh toán (mô phỏng)</label>
         <label class="chon"><input type="radio" name="pay" value="cod" checked> Tiền mặt khi nhận</label><label class="chon"><input type="radio" name="pay" value="bank"> Chuyển khoản</label><label><input type="radio" name="pay" value="wallet"> Ví điện tử</label></div>
+      <div class="full" id="qrBox" style="display:none"></div>
     </div></div></div>
   <div><div class="box"><h5 style="font-weight:900">Đơn hàng của bạn</h5><div id="sumLines" class="mb2"></div>
     <div class="sum-line"><span>Tạm tính</span><b id="s1"></b></div><div class="sum-line"><span>Phí giao hàng</span><b id="s2"></b></div><div class="sum-line"><span>Giảm giá</span><b id="s3"></b></div>
@@ -65,9 +66,10 @@
     <div><h5>Liên kết</h5><div><a href="thucdon.html">Thực đơn</a></div><div><a href="khuyenmai.html">Khuyến mãi</a></div><div><a href="cuahang.html">Cửa hàng</a></div><div><a href="donhang.html">Đơn hàng của tôi</a></div></div>
     <div><h5>Hỗ trợ</h5><div><a href="lienhe.html">Liên hệ</a></div><div><a href="tintuc.html">Tin tức</a></div><div><small>Hotline minh họa: 1900 xxxx</small></div></div>
   </div><div class="sub">Sinh viên thực hiện: Vũ Tiến Phước – Đại học Công nghệ Kỹ thuật Hưng Yên.</div></div></footer>
-  <a class="chat-fab" href="lienhe.html">Trò chuyện cùng Jolly</a>
+  <a class="chat-fab" href="#" onclick="moTroChuyen(); return false;">Trò chuyện cùng Jolly</a>
 </div>
 <script src="../js/dulieu.js"></script>
+<script src="../js/qr.js"></script>
 <script src="../js/chung.js"></script>
 <script src="../js/dathang.js"></script>
 </body>
