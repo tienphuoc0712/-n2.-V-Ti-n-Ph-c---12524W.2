@@ -60,16 +60,18 @@ function veThongTinMon() {
     datHTML("detail",
         '<div class="chia md" style="--tl:5fr 7fr">' +
         '<div><img class="ct-anh" src="' + maHoaChu(anhMon(mon)) + '" alt="' + maHoaChu(mon.ten) + '" onerror="anhLoi(this)"></div>' +
-        '<div><nav class="ct-duong-dan"><a href="thucdon.html">Thực đơn</a> / <a href="thucdon.html?cat=' + mon.danhMuc + '">' + maHoaChu(dm.ten) + '</a></nav>' +
+        '<div><nav class="ct-duong-dan"><a href="thucdon.html">Thực đơn</a> / <a href="thucdon.html?cat=' + mon.danhMuc + '">' + maHoaChu(dm ? dm.ten : "Món ăn") + '</a></nav>' +
         '<h1 class="ct-ten">' + maHoaChu(mon.ten) + '</h1><div class="stars" id="avg"></div>' +
         '<div class="ct-gia">' + giaHienThi(mon) + '</div><p>' + maHoaChu(mon.moTa) + '</p>' +
         '<div class="ct-hang"><div class="qty"><button id="mi">−</button><input id="qv" value="1" inputmode="numeric"><button id="pl">+</button></div>' +
-        '<button class="btn-jb" id="add">Thêm vào giỏ</button><button class="btn-jb yellow" id="buy">Mua ngay</button></div></div></div>');
+        (mon.dangBan ? '<button class="btn-jb" id="add">Thêm vào giỏ</button><button class="btn-jb yellow" id="buy">Mua ngay</button>' : '<span class="status st-da_huy">Món này đã ngừng bán</span>') + '</div></div></div>');
     layId("mi").onclick = function () { tangGiamSoLuong(-1); };
     layId("pl").onclick = function () { tangGiamSoLuong(1); };
     layId("qv").onchange = function () { layId("qv").value = laySoLuongChon(); };
-    layId("add").onclick = bamThemVaoGio;
-    layId("buy").onclick = bamMuaNgay;
+    if (mon.dangBan) {
+        layId("add").onclick = bamThemVaoGio;
+        layId("buy").onclick = bamMuaNgay;
+    }
 }
 
 // Vẽ điểm trung bình và danh sách đánh giá
