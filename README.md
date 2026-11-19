@@ -11,7 +11,8 @@ Mở `html/trangchu.html` bằng trình duyệt (hoặc `index.html`, hoặc Liv
 | Đặt hàng | dathang.html | dathang.css | dathang.js |
 | Đăng nhập / Đăng ký | dangnhap.html | dangnhap.css | dangnhap.js |
 | Đơn hàng của tôi | donhang.html | donhang.css | donhang.js |
-| Khuyến mãi / Tin tức / Cửa hàng / Dịch vụ / Liên hệ | khuyenmai, tintuc, cuahang, dichvu, lienhe | (cùng tên) | (cùng tên) |
+| Khuyến mãi / Cửa hàng / Liên hệ | khuyenmai, cuahang, lienhe | (cùng tên) | (cùng tên) |
+| Tin tức / Dịch vụ | tintuc.html, dichvu.html | (cùng tên) | không có (trang tĩnh, dùng chung.js) |
 | Quản trị | quantri.html | quantri.css | quantri.js |
 
 - `css/chung.css`: giao diện dùng chung (lưới, nút, biểu mẫu, header, footer, thẻ món ăn, hộp thoại).
@@ -29,4 +30,4 @@ Mở `html/trangchu.html` bằng trình duyệt (hoặc `index.html`, hoặc Liv
 ## Ghi chú
 - Chưa có back-end: dữ liệu lưu trong localStorage của trình duyệt. Muốn xóa dữ liệu thử, xóa site data của trang.
 - Mật khẩu chỉ băm đơn giản để minh họa. Thanh toán và giao hàng chỉ mô phỏng.
-- Quy tắc nghiệp vụ BR01–BR10 trong báo cáo được cài trong `js/chung.js` và `js/quantri.js`.
+- Quy tắc nghiệp vụ BR01–BR14 trong báo cáo được cài trong `js/chung.js` và `js/quantri.js`.
