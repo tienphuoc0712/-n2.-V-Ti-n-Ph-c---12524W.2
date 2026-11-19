@@ -64,6 +64,7 @@ function ghiDuLieu(khoa, giaTri) {
 // Lần đầu mở website: nạp dữ liệu mẫu và 2 tài khoản có sẵn
 function khoiTaoDuLieu() {
     if (docDuLieu("jb_daKhoiTao", false) == true) {
+        nangCapDuLieu();
         return;
     }
     ghiDuLieu("jb_monAn", DU_LIEU.monAn);
@@ -76,6 +77,21 @@ function khoiTaoDuLieu() {
     ghiDuLieu("jb_danhGia", []);
     ghiDuLieu("jb_gioHang", []);
     ghiDuLieu("jb_daKhoiTao", true);
+}
+
+// Dữ liệu đã lưu từ bản cũ: bổ sung các trường mới (mã WELCOME20 chỉ áp dụng cho đơn đầu tiên)
+function nangCapDuLieu() {
+    var ds = docDuLieu("jb_khuyenMai", []);
+    var doi = false;
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].ma == "WELCOME20" && ds[i].donDau === undefined) {
+            ds[i].donDau = true;
+            doi = true;
+        }
+    }
+    if (doi) {
+        ghiDuLieu("jb_khuyenMai", ds);
+    }
 }
 
 // ================= 2. HÀM TIỆN ÍCH =================
@@ -430,6 +446,28 @@ function luuHinhThuc(hinhThuc) {
 
 // ================= 5. KHUYẾN MÃI VÀ TÍNH TIỀN =================
 
+// Chương trình còn hiệu lực: đang bật và (nếu có khai báo) hôm nay nằm trong khoảng tuNgay..denNgay
+function conHieuLuc(km) {
+    if (!km.dangBan) {
+        return false;
+    }
+    var homNay = ngayDiaPhuong(new Date());
+    if (km.tuNgay && homNay < km.tuNgay) {
+        return false;
+    }
+    if (km.denNgay && homNay > km.denNgay) {
+        return false;
+    }
+    return true;
+}
+
+// Ngày theo giờ máy người dùng, dạng yyyy-mm-dd (không dùng toISOString vì nó tính theo giờ UTC)
+function ngayDiaPhuong(d) {
+    var m = String(d.getMonth() + 1);
+    var n = String(d.getDate());
+    return d.getFullYear() + "-" + (m.length < 2 ? "0" + m : m) + "-" + (n.length < 2 ? "0" + n : n);
+}
+
 function layKhuyenMai(tatCa) {
     var ds = docDuLieu("jb_khuyenMai", []);
     if (tatCa == true) {
@@ -437,7 +475,7 @@ function layKhuyenMai(tatCa) {
     }
     var kq = [];
     for (var i = 0; i < ds.length; i++) {
-        if (ds[i].dangBan) {
+        if (conHieuLuc(ds[i])) {
             kq.push(ds[i]);
         }
     }
@@ -461,6 +499,17 @@ function daDungMa(email, ma) {
     return false;
 }
 
+// Tài khoản này đã có đơn nào (chưa hủy / chưa giao thất bại) chưa? Dùng cho mã chỉ áp dụng đơn đầu tiên
+function daCoDon(email) {
+    var ds = layDonHang();
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].email == email && ds[i].trangThai != "da_huy" && ds[i].trangThai != "giao_that_bai") {
+            return true;
+        }
+    }
+    return false;
+}
+
 function kiemTraMa(ma, tamTinh) {
     ma = String(ma).trim().toUpperCase();
     var ds = layKhuyenMai(false);
@@ -472,6 +521,9 @@ function kiemTraMa(ma, tamTinh) {
             }
             if (daDungMa(nguoi.email, ds[i].ma)) {
                 return { ok: false, thongBao: "Bạn đã dùng mã này rồi (mỗi tài khoản chỉ dùng 1 lần)." };
+            }
+            if (ds[i].donDau && daCoDon(nguoi.email)) {
+                return { ok: false, thongBao: "Mã này chỉ áp dụng cho đơn hàng đầu tiên của tài khoản." };
             }
             if (tamTinh < ds[i].toiThieu) {
                 return { ok: false, thongBao: "Đơn tối thiểu " + dinhDangTien(ds[i].toiThieu) + " để dùng mã này." };
@@ -560,7 +612,7 @@ function dangKyTaiKhoan(hoTen, email, sdt, matKhau) {
             return { ok: false, thongBao: "Email này đã được đăng ký." };
         }
     }
-    var moi = { id: Date.now(), hoTen: hoTen, email: email, sdt: sdt, matKhau: bamMatKhau(matKhau), vaiTro: "khach", biKhoa: false };
+    var moi = { id: Date.now(), hoTen: hoTen, email: email.trim().toLowerCase(), sdt: sdt, matKhau: bamMatKhau(matKhau), vaiTro: "khach", biKhoa: false };
     ds.push(moi);
     luuNguoiDung(ds);
     ghiDuLieu("jb_dangNhap", moi.id);        // đăng ký xong tự đăng nhập luôn
@@ -630,6 +682,12 @@ function taoDonHang(thongTin) {
     if (dong.length == 0) {
         return { ok: false, thongBao: "Giỏ hàng đang trống." };
     }
+    if (String(thongTin.ten).trim() == "" || sdtHopLe(thongTin.sdt) == false) {
+        return { ok: false, thongBao: "Họ tên hoặc số điện thoại không hợp lệ." };
+    }
+    if (thongTin.hinhThuc == "giao_tan_noi" && String(thongTin.diaChi).trim() == "") {
+        return { ok: false, thongBao: "Vui lòng nhập địa chỉ giao hàng." };
+    }
     var tamTinh = layTamTinh();
     var km = null;
     if (thongTin.maKM != "") {
@@ -657,6 +715,7 @@ function taoDonHang(thongTin) {
         ghiChu: thongTin.ghiChu,
         hinhThuc: thongTin.hinhThuc,
         thanhToan: thongTin.thanhToan,
+        daThanhToan: thongTin.thanhToan == "wallet",      // ví điện tử (mô phỏng) trả ngay; chuyển khoản chờ cửa hàng xác nhận; tiền mặt trả khi nhận
         maKM: km == null ? "" : km.ma,
         mon: mon,
         tamTinh: t.tamTinh,
@@ -671,13 +730,25 @@ function taoDonHang(thongTin) {
     return { ok: true, don: don };
 }
 
-// Đổi trạng thái đơn, chỉ cho phép các bước hợp lệ trong BUOC_TIEP
-function doiTrangThaiDon(ma, trangThaiMoi) {
+// Đã thu tiền chưa? Tiền mặt coi là đã thu khi khách nhận món; chuyển khoản phải được cửa hàng xác nhận
+function daThanhToan(don) {
+    if (don.daThanhToan) {
+        return true;
+    }
+    return don.thanhToan == "cod" && don.trangThai == "da_giao";
+}
+
+// Đổi trạng thái đơn (không kiểm tra quyền), chỉ cho phép các bước hợp lệ trong BUOC_TIEP
+function capNhatTrangThai(ma, trangThaiMoi) {
     var ds = layDonHang();
     for (var i = 0; i < ds.length; i++) {
         if (ds[i].ma == ma) {
             var duocPhep = layBuocTiep(ds[i]);
             if (duocPhep.indexOf(trangThaiMoi) == -1) {
+                return false;
+            }
+            // đơn chuyển khoản phải được xác nhận đã nhận tiền trước khi vào bếp
+            if (trangThaiMoi == "dang_chuan_bi" && ds[i].thanhToan == "bank" && daThanhToan(ds[i]) == false) {
                 return false;
             }
             ds[i].trangThai = trangThaiMoi;
@@ -688,13 +759,40 @@ function doiTrangThaiDon(ma, trangThaiMoi) {
     return false;
 }
 
-// Khách chỉ hủy được đơn khi còn ở trạng thái "Chờ xác nhận"
-function huyDonHang(ma) {
-    var don = timDon(ma);
-    if (don == null || don.trangThai != "cho_xac_nhan") {
+// Nhân viên / quản trị viên chuyển trạng thái đơn
+function doiTrangThaiDon(ma, trangThaiMoi) {
+    var nguoi = layNguoiDangNhap();
+    if (nguoi == null || nguoi.vaiTro == "khach") {
         return false;
     }
-    return doiTrangThaiDon(ma, "da_huy");
+    return capNhatTrangThai(ma, trangThaiMoi);
+}
+
+// Nhân viên / quản trị viên xác nhận đã nhận tiền chuyển khoản
+function xacNhanDaThu(ma) {
+    var nguoi = layNguoiDangNhap();
+    if (nguoi == null || nguoi.vaiTro == "khach") {
+        return false;
+    }
+    var ds = layDonHang();
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].ma == ma && ds[i].thanhToan == "bank" && ds[i].trangThai != "da_huy" && ds[i].trangThai != "giao_that_bai") {
+            ds[i].daThanhToan = true;
+            luuDonHang(ds);
+            return true;
+        }
+    }
+    return false;
+}
+
+// Khách chỉ hủy được đơn CỦA MÌNH và chỉ khi còn ở trạng thái "Chờ xác nhận"
+function huyDonHang(ma) {
+    var nguoi = layNguoiDangNhap();
+    var don = timDon(ma);
+    if (nguoi == null || don == null || don.email != nguoi.email || don.trangThai != "cho_xac_nhan") {
+        return false;
+    }
+    return capNhatTrangThai(ma, "da_huy");
 }
 
 // ================= 8. ĐÁNH GIÁ =================
@@ -887,7 +985,7 @@ function veMaQR(chuoi) {
 }
 
 // Khung thanh toán chuyển khoản: mã QR + thông tin tài khoản + số tiền + nội dung
-function veKhungQR(soTien, noiDung) {
+function veKhungQR(soTien, noiDung, anHuongDan) {
     var nh = CUA_HANG.nganHang;
     var dong = function (nhan, giaTri) {
         return '<div class="qr-dong"><span>' + nhan + '</span><b>' + maHoaChu(giaTri) + '</b></div>';
@@ -896,7 +994,7 @@ function veKhungQR(soTien, noiDung) {
         '<div class="qr-tt">' + dong("Ngân hàng", nh.ten) + dong("Số tài khoản", nh.soTK) + dong("Chủ tài khoản", nh.chuTK) +
         '<div class="qr-dong"><span>Số tiền</span><b class="qr-tien">' + dinhDangTien(soTien) + '</b></div>' +
         dong("Nội dung", noiDung) + '</div></div>' +
-        '<p class="nho muted qr-ghi">Mở ứng dụng ngân hàng, chọn quét mã QR: số tiền và nội dung đã được điền sẵn.</p>';
+        (anHuongDan ? "" : '<p class="nho muted qr-ghi">Mở ứng dụng ngân hàng, chọn quét mã QR: số tiền và nội dung đã được điền sẵn.</p>');
 }
 
 // Hộp thoại dùng chung: tạo một lần, mỗi lần gọi chỉ đổi tiêu đề và nội dung

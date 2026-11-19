@@ -9,9 +9,9 @@ var LOAI_KM = { phan_tram: "Giảm %", so_tien: "Giảm tiền", mien_phi_ship: 
 var HINH_THUC_TT = { cod: "Tiền mặt", bank: "Chuyển khoản", wallet: "Ví điện tử" };
 var VAI_TRO = { quantri: "Quản trị viên", nhanvien: "Nhân viên", khach: "Khách hàng" };
 
-// Danh sách tab. Nhân viên KHÔNG được xem Tổng quan, Khuyến mãi, Người dùng (BR09)
+// Danh sách tab. Nhân viên KHÔNG được xem Tổng quan, Khuyến mãi, Người dùng (BR08)
 function layDanhSachTab() {
-    var tatCa = [["dash", "Tổng quan", true], ["orders", "Đơn hàng", false], ["products", "Món ăn", false], ["promos", "Khuyến mãi", true], ["users", "Người dùng", true]];
+    var tatCa = [["dash", "Tổng quan", true], ["orders", "Đơn hàng", false], ["products", "Món ăn", false], ["promos", "Khuyến mãi", true], ["users", "Người dùng", true], ["feedback", "Góp ý", false]];
     var kq = [];
     for (var i = 0; i < tatCa.length; i++) {
         if (tatCa[i][2] == false || laQuanTri) {
@@ -35,8 +35,14 @@ function veMenuTrai() {
 }
 
 function chonTab(tab) {
-    tabDangXem = tab;
-    veTrang();
+    var ds = layDanhSachTab();
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i][0] == tab) {                 // chỉ cho vào những tab mà vai trò này được phép xem
+            tabDangXem = tab;
+            veTrang();
+            return;
+        }
+    }
 }
 
 function veTrang() {
@@ -46,6 +52,7 @@ function veTrang() {
     else if (tabDangXem == "products") { veMonAnQT(); }
     else if (tabDangXem == "promos") { veKhuyenMaiQT(); }
     else if (tabDangXem == "users") { veNguoiDungQT(); }
+    else if (tabDangXem == "feedback") { veGopYQT(); }
 }
 
 /* ===== TỔNG QUAN (doanh thu chỉ tính đơn đã giao) ===== */
@@ -71,10 +78,10 @@ function veTongQuan() {
     for (var k = 6; k >= 0; k--) {
         var d = new Date();
         d.setDate(d.getDate() - k);
-        var chuoiNgay = d.toISOString().slice(0, 10);
+        var chuoiNgay = ngayDiaPhuong(d);          // theo giờ máy (không dùng giờ UTC nên không lệch ngày)
         var tong = 0;
         for (var j = 0; j < daGiao.length; j++) {
-            if (daGiao[j].ngay.slice(0, 10) == chuoiNgay) {
+            if (ngayDiaPhuong(new Date(daGiao[j].ngay)) == chuoiNgay) {
                 tong = tong + daGiao[j].tong;
             }
         }
@@ -174,19 +181,24 @@ function moChiTietDon(ma) {
         if (buoc[k] == "da_giao" && o.hinhThuc == "den_lay") {
             chu = "→ Khách đã nhận hàng";
         }
-        nut = nut + '<button class="btn-jb st" data-s="' + buoc[k] + '" onclick="doiTrangThaiQT(\'' + o.ma + '\', \'' + buoc[k] + '\')">' + chu + '</button>';
+        var khoa = (buoc[k] == "dang_chuan_bi" && o.thanhToan == "bank" && daThanhToan(o) == false);
+        nut = nut + '<button class="btn-jb st" data-s="' + buoc[k] + '"' + (khoa ? ' disabled title="Cần xác nhận đã nhận tiền chuyển khoản trước"' : '') + ' onclick="doiTrangThaiQT(\'' + o.ma + '\', \'' + buoc[k] + '\')">' + chu + '</button>';
+    }
+    var dongTien = "";
+    if (o.thanhToan == "bank" && o.trangThai != "da_huy" && o.trangThai != "giao_that_bai" && daThanhToan(o) == false) {
+        dongTien = '<button class="btn-line" id="thu" onclick="xacNhanThuTien(\'' + o.ma + '\')">Xác nhận đã nhận tiền chuyển khoản</button>';
     }
     if (nut == "") {
         nut = '<span class="muted">Đơn đã kết thúc.</span>';
     }
     datChu("omT", "Đơn hàng #" + o.ma);
     datHTML("omB",
-        '<p><span class="status st-' + o.trangThai + '">' + TRANG_THAI[o.trangThai] + '</span> · ' + (o.hinhThuc == "den_lay" ? "Đến lấy" : "Giao tận nơi") + ' · ' + (HINH_THUC_TT[o.thanhToan] || o.thanhToan) + '</p>' +
+        '<p><span class="status st-' + o.trangThai + '">' + TRANG_THAI[o.trangThai] + '</span> · ' + (o.hinhThuc == "den_lay" ? "Đến lấy" : "Giao tận nơi") + ' · ' + (HINH_THUC_TT[o.thanhToan] || o.thanhToan) + ' · <b>' + (daThanhToan(o) ? "Đã thanh toán" : "Chưa thanh toán") + '</b></p>' +
         '<p>Người nhận: <b>' + maHoaChu(o.ten) + '</b> – ' + maHoaChu(o.sdt) + '<br>Địa chỉ: ' + maHoaChu(o.diaChi) + (o.ghiChu ? "<br>Ghi chú: " + maHoaChu(o.ghiChu) : "") + '</p>' + dong +
         '<div class="sum-line"><span>Phí giao hàng</span><span>' + dinhDangTien(o.phiGiao) + '</span></div>' +
         '<div class="sum-line"><span>Giảm giá' + (o.maKM ? " (" + maHoaChu(o.maKM) + ")" : "") + '</span><span>-' + dinhDangTien(o.giamGia) + '</span></div>' +
         '<div class="sum-line sum-total"><span>Tổng cộng</span><span>' + dinhDangTien(o.tong) + '</span></div>' +
-        '<div class="hang-nut">' + nut + '</div>');
+        '<div class="hang-nut">' + dongTien + nut + '</div>');
     moHopThoai("om");
 }
 
@@ -195,10 +207,20 @@ function doiTrangThaiQT(ma, moi) {
         moChiTietDon(ma);
         veDonHangQT();
         thongBao("Đã cập nhật trạng thái");
+    } else {
+        thongBao("Không thể chuyển trạng thái (đơn chuyển khoản cần xác nhận đã nhận tiền trước).");
     }
 }
 
-/* ===== MÓN ĂN (nhân viên chỉ bật/tắt; BR10: món đã có trong đơn thì không xóa hẳn) ===== */
+function xacNhanThuTien(ma) {
+    if (xacNhanDaThu(ma)) {
+        moChiTietDon(ma);
+        veDonHangQT();
+        thongBao("Đã xác nhận nhận tiền");
+    }
+}
+
+/* ===== MÓN ĂN (nhân viên chỉ bật/tắt; BR09: món đã có trong đơn thì không xóa hẳn) ===== */
 function veMonAnQT() {
     var ds = layMonAn(true);
     var hang = "";
@@ -210,7 +232,7 @@ function veMonAnQT() {
         }
         hang = hang + '<tr><td><img class="thumb" src="' + maHoaChu(anhMon(p)) + '" alt="" onerror="anhLoi(this)"></td>' +
             '<td><b>' + maHoaChu(p.ten) + '</b>' + (p.banChay ? ' <span class="nhan-do">Bán chạy</span>' : "") + '</td>' +
-            '<td>' + maHoaChu(timDanhMuc(p.danhMuc).ten) + '</td><td>' + dinhDangTien(p.gia) + '</td>' +
+            '<td>' + maHoaChu(timDanhMuc(p.danhMuc) ? timDanhMuc(p.danhMuc).ten : '—') + '</td><td>' + dinhDangTien(p.gia) + '</td>' +
             '<td><span class="status ' + (p.dangBan ? "st-da_giao" : "st-da_huy") + '">' + (p.dangBan ? "Đang bán" : "Ngừng bán") + '</span></td>' +
             '<td class="nowrap"><button class="btn-line tg" onclick="batTatMon(' + p.id + ')">' + (p.dangBan ? "Tắt" : "Bật") + '</button> ' + nutAdmin + '</td></tr>';
     }
@@ -232,6 +254,9 @@ function batTatMon(id) {
 
 // Mở hộp thoại thêm (id = 0) hoặc sửa món
 function moFormMon(id) {
+    if (laQuanTri == false) {                  // chỉ quản trị viên được thêm/sửa món
+        return;
+    }
     var p = id == 0 ? null : timMon(id);
     var opt = "";
     var dm = layDanhMuc();
@@ -253,6 +278,9 @@ function moFormMon(id) {
 }
 
 function luuMon() {
+    if (laQuanTri == false) {
+        return;
+    }
     var ten = layGiaTri("pn");
     var gia = parseInt(layId("pp").value, 10);
     if (ten == "") {
@@ -293,6 +321,9 @@ function luuMon() {
 }
 
 function xoaMonQT(id) {
+    if (laQuanTri == false) {
+        return;
+    }
     var daCoTrongDon = false;
     var dsDon = layDonHang();
     for (var i = 0; i < dsDon.length; i++) {
@@ -335,16 +366,20 @@ function veKhuyenMaiQT() {
         var giaTri = "–";
         if (p.loai == "phan_tram") { giaTri = p.giaTri + "%"; }
         else if (p.loai == "so_tien") { giaTri = dinhDangTien(p.giaTri); }
-        hang = hang + '<tr><td><span class="code">' + maHoaChu(p.ma) + '</span></td><td>' + maHoaChu(p.tieuDe) + '</td><td>' + LOAI_KM[p.loai] + '</td><td>' + giaTri + '</td><td>' + dinhDangTien(p.toiThieu) + '</td>' +
+        var hanDung = (p.tuNgay || p.denNgay) ? (p.tuNgay || "…") + " → " + (p.denNgay || "…") : "Không giới hạn";
+        hang = hang + '<tr><td><span class="code">' + maHoaChu(p.ma) + '</span></td><td>' + maHoaChu(p.tieuDe) + (p.donDau ? ' <span class="nhan-do">Đơn đầu</span>' : '') + '</td><td>' + LOAI_KM[p.loai] + '</td><td>' + giaTri + '</td><td>' + dinhDangTien(p.toiThieu) + '</td><td>' + hanDung + '</td>' +
             '<td class="nowrap"><button class="btn-line pt" onclick="batTatKM(' + p.id + ')">' + (p.dangBan ? "Tắt" : "Bật") + '</button> <button class="btn-line pd2" onclick="xoaKM(' + p.id + ')">Xóa</button></td></tr>';
     }
     datHTML("view", '<div class="box mb3"><h6 style="font-weight:bold">Thêm mã giảm giá</h6><div class="form-km"><input id="n-t" class="o-nhap" placeholder="Tên chương trình"><input id="n-c" class="o-nhap" placeholder="MÃ">' +
         '<select id="n-y" class="o-nhap"><option value="phan_tram">Giảm %</option><option value="so_tien">Giảm tiền</option><option value="mien_phi_ship">Miễn phí giao</option></select>' +
-        '<input id="n-v" class="o-nhap" placeholder="Giá trị"><input id="n-m" class="o-nhap" placeholder="Đơn tối thiểu"><button class="btn-jb" id="n-a" onclick="themKM()">+</button></div><div class="invalid-msg" id="n-e"></div></div>' +
-        '<div class="tbl"><table class="bang"><thead><tr><th>Mã</th><th>Chương trình</th><th>Loại</th><th>Giá trị</th><th>Tối thiểu</th><th></th></tr></thead><tbody>' + hang + '</tbody></table></div>');
+        '<input id="n-v" class="o-nhap" placeholder="Giá trị"><input id="n-m" class="o-nhap" placeholder="Đơn tối thiểu"><input id="n-d1" class="o-nhap" type="date" title="Từ ngày"><input id="n-d2" class="o-nhap" type="date" title="Đến ngày"><button class="btn-jb" id="n-a" onclick="themKM()">+</button></div><div class="invalid-msg" id="n-e"></div></div>' +
+        '<div class="tbl"><table class="bang"><thead><tr><th>Mã</th><th>Chương trình</th><th>Loại</th><th>Giá trị</th><th>Tối thiểu</th><th>Hạn dùng</th><th></th></tr></thead><tbody>' + hang + '</tbody></table></div>');
 }
 
 function themKM() {
+    if (laQuanTri == false) {
+        return;
+    }
     var tieuDe = layGiaTri("n-t");
     var ma = layGiaTri("n-c").toUpperCase();
     var loai = layId("n-y").value;
@@ -369,12 +404,21 @@ function themKM() {
         datChu("n-e", "Phần trăm giảm tối đa 100.");
         return;
     }
-    ds.push({ id: Date.now(), tieuDe: tieuDe, ma: ma, loai: loai, giaTri: giaTri, toiThieu: toiThieu, moTa: tieuDe, dangBan: true });
+    var tuNgay = layId("n-d1").value;
+    var denNgay = layId("n-d2").value;
+    if (tuNgay != "" && denNgay != "" && denNgay < tuNgay) {
+        datChu("n-e", "Ngày kết thúc phải sau ngày bắt đầu.");
+        return;
+    }
+    ds.push({ id: Date.now(), tieuDe: tieuDe, ma: ma, loai: loai, giaTri: giaTri, toiThieu: toiThieu, moTa: tieuDe, tuNgay: tuNgay, denNgay: denNgay, dangBan: true });
     luuKhuyenMai(ds);
     veKhuyenMaiQT();
 }
 
 function batTatKM(id) {
+    if (laQuanTri == false) {
+        return;
+    }
     var ds = layKhuyenMai(true);
     for (var i = 0; i < ds.length; i++) {
         if (ds[i].id == id) {
@@ -386,7 +430,7 @@ function batTatKM(id) {
 }
 
 function xoaKM(id) {
-    if (confirm("Xóa mã này?")) {
+    if (laQuanTri && confirm("Xóa mã này?")) {
         var con = [];
         var ds = layKhuyenMai(true);
         for (var i = 0; i < ds.length; i++) {
@@ -406,7 +450,7 @@ function veNguoiDungQT() {
     for (var i = 0; i < ds.length; i++) {
         var u = ds[i];
         var nut = "";
-        if (u.id != nguoiQT.id) {                 // không tự khóa chính mình
+        if (u.id != nguoiQT.id && u.vaiTro != "quantri") {      // không tự khóa mình, không khóa quản trị viên khác
             nut = '<button class="btn-line lk" onclick="khoaNguoiDung(' + u.id + ')">' + (u.biKhoa ? "Mở khóa" : "Khóa") + '</button>';
         }
         hang = hang + '<tr><td>' + maHoaChu(u.hoTen) + '</td><td>' + maHoaChu(u.email) + '</td><td>' + maHoaChu(u.sdt) + '</td><td>' + VAI_TRO[u.vaiTro] + '</td>' +
@@ -416,14 +460,30 @@ function veNguoiDungQT() {
 }
 
 function khoaNguoiDung(id) {
+    if (laQuanTri == false) {
+        return;
+    }
     var ds = layNguoiDung();
     for (var i = 0; i < ds.length; i++) {
-        if (ds[i].id == id) {
+        if (ds[i].id == id && ds[i].vaiTro != "quantri" && ds[i].id != nguoiQT.id) {
             ds[i].biKhoa = !ds[i].biKhoa;
         }
     }
     luuNguoiDung(ds);
     veNguoiDungQT();
+}
+
+/* ===== GÓP Ý CỦA KHÁCH (gửi từ khung "Trò chuyện cùng Jolly", lưu ở khóa jb_lienHe) ===== */
+function veGopYQT() {
+    var ds = docDuLieu("jb_lienHe", []);
+    var hang = "";
+    for (var i = 0; i < ds.length; i++) {
+        hang = hang + '<tr><td class="nowrap">' + new Date(ds[i].ngay).toLocaleString("vi-VN") + '</td><td>' + maHoaChu(ds[i].ten) + '</td><td>' + maHoaChu(ds[i].email) + '</td><td>' + maHoaChu(ds[i].noiDung) + '</td></tr>';
+    }
+    if (hang == "") {
+        hang = '<tr><td colspan="4" class="text-center muted" style="padding:1.5rem">Chưa có góp ý nào.</td></tr>';
+    }
+    datHTML("view", '<div class="tbl"><table class="bang"><thead><tr><th>Thời gian</th><th>Họ tên</th><th>Email</th><th>Nội dung góp ý</th></tr></thead><tbody>' + hang + '</tbody></table></div>');
 }
 
 function khoiTaoQuanTri() {

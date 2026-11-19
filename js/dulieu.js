@@ -49,7 +49,7 @@ var DU_LIEU = {
  khuyenMai: [
   {"id":1,"tieuDe":"Giảm 10% đơn từ 100.000đ","ma":"JOLLY10","loai":"phan_tram","giaTri":10,"toiThieu":100000,"moTa":"Áp dụng cho mọi đơn hàng đặt online từ 100.000đ.","dangBan":true},
   {"id":2,"tieuDe":"Miễn phí giao hàng","ma":"FREESHIP","loai":"mien_phi_ship","giaTri":0,"toiThieu":150000,"moTa":"Miễn phí giao hàng cho đơn từ 150.000đ.","dangBan":true},
-  {"id":3,"tieuDe":"Giảm 20.000đ cho khách mới","ma":"WELCOME20","loai":"so_tien","giaTri":20000,"toiThieu":80000,"moTa":"Dành cho đơn đầu tiên từ 80.000đ.","dangBan":true}
+  {"id":3,"tieuDe":"Giảm 20.000đ cho khách mới","ma":"WELCOME20","loai":"so_tien","giaTri":20000,"toiThieu":80000,"moTa":"Dành cho đơn đầu tiên từ 80.000đ.","donDau":true,"dangBan":true}
  ]
 };
 
