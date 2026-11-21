@@ -207,3 +207,22 @@ textarea.o-nhap{resize:vertical}
 .chat-than{padding:14px;max-height:70vh;overflow:auto}
 .chat-bong{background:var(--cream);border-radius:14px 14px 14px 2px;padding:10px 12px;margin-bottom:10px;font-size:14px}
 @media(max-width:576px){.lh-dong span{flex-basis:90px}.qr-anh{flex-basis:170px;width:170px}}
+
+/* ---- Theo dõi trạng thái đơn hàng (khách + nhân viên) ---- */
+.tien-trinh{display:flex;list-style:none;margin:14px 0 6px;padding:0}
+.tien-trinh li{flex:1;text-align:center;position:relative;font-size:12px;color:#9ca3af;font-weight:700}
+.tien-trinh li::before{content:"";position:absolute;top:13px;left:-50%;width:100%;height:4px;background:#e5e7eb;z-index:0}
+.tien-trinh li:first-child::before{display:none}
+.tien-trinh li.xong::before,.tien-trinh li.dang::before{background:#16a34a}
+.tien-trinh .cham{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-weight:900;font-size:13px}
+.tien-trinh .chu{display:block;margin-top:6px;line-height:1.2}
+.tien-trinh li.xong .cham{background:#16a34a;color:#fff}
+.tien-trinh li.xong{color:#15803d}
+.tien-trinh li.dang .cham{background:var(--red);color:#fff;box-shadow:0 0 0 5px rgba(228,0,43,.18);animation:nhip 1.6s infinite}
+.tien-trinh li.dang{color:var(--red)}
+@keyframes nhip{50%{box-shadow:0 0 0 9px rgba(228,0,43,.06)}}
+.tt-loi{margin:12px 0 4px;padding:10px 14px;border-radius:10px;font-weight:900}
+.tt-da_huy{background:#f3f4f6;color:#4b5563}.tt-giao_that_bai{background:#fee2e2;color:#b91c1c}
+.tt-nhan{display:inline-block;padding:2px 10px;border-radius:6px;font-size:12px;font-weight:800}
+.tt-da{background:#dcfce7;color:#166534}.tt-chua{background:#fef3c7;color:#92400e}.tt-khong{background:#f3f4f6;color:#6b7280}
+.tt-mota{margin:6px 0 0;font-weight:700;color:#444}

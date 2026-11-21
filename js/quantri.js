@@ -141,28 +141,92 @@ function veTongQuan() {
 }
 
 /* ===== ĐƠN HÀNG (chuyển trạng thái đúng theo BUOC_TIEP) ===== */
-function veDonHangQT() {
-    var ds = layDonHang();
-    var opt = '<option value="">Tất cả trạng thái</option>';
-    for (var k in TRANG_THAI) {
-        opt = opt + '<option value="' + k + '"' + (k == locTrangThai ? " selected" : "") + '>' + TRANG_THAI[k] + '</option>';
+var tuKhoaDon = "";          // ô tìm theo mã đơn / số điện thoại / tên
+
+// Việc tiếp theo nhân viên nên làm với đơn: { chu, hanhDong } hoặc null nếu đơn đã kết thúc
+function viecTiepTheo(o) {
+    if (o.thanhToan == "bank" && daThanhToan(o) == false && (o.trangThai == "da_xac_nhan" || o.trangThai == "dang_chuan_bi")) {
+        return { chu: "Xác nhận đã thu tiền", lenh: "xacNhanThuNhanh('" + o.ma + "')", loai: "thu" };
     }
+    var buoc = layBuocTiep(o);
+    if (buoc.length == 0) {
+        return null;
+    }
+    var moi = buoc[0];
+    var chu = moi == "da_xac_nhan" ? "Xác nhận đơn" : moi == "dang_chuan_bi" ? "Bắt đầu chuẩn bị" : moi == "dang_giao" ? "Giao hàng" : "Hoàn tất";
+    if (moi == "dang_chuan_bi" && o.thanhToan == "bank" && daThanhToan(o) == false) {
+        return { chu: "Chờ khách chuyển khoản", lenh: "", loai: "cho" };
+    }
+    return { chu: chu, lenh: "doiTrangThaiNhanh('" + o.ma + "', '" + moi + "')", loai: "tiep" };
+}
+
+function doiTrangThaiNhanh(ma, moi) {
+    if (doiTrangThaiDon(ma, moi)) {
+        veDonHangQT();
+        thongBao("Đơn " + ma + ": " + TRANG_THAI[moi]);
+    }
+}
+
+function xacNhanThuNhanh(ma) {
+    if (xacNhanDaThu(ma)) {
+        veDonHangQT();
+        thongBao("Đã xác nhận nhận tiền đơn " + ma);
+    }
+}
+
+function chonLocQT(loc) {
+    locTrangThai = loc;
+    veDonHangQT();
+}
+
+// Thân bảng: lọc theo trạng thái + từ khóa, đơn cần xử lý nổi bật
+function veBangDonQT() {
+    var ds = layDonHang();
+    var tk = tuKhoaDon.toLowerCase();
     var hang = "";
     for (var i = 0; i < ds.length; i++) {
         var o = ds[i];
         if (locTrangThai != "" && o.trangThai != locTrangThai) {
             continue;
         }
-        hang = hang + '<tr><td><b>' + o.ma + '</b></td><td>' + new Date(o.ngay).toLocaleString("vi-VN") + '</td>' +
-            '<td>' + maHoaChu(o.ten) + '<div class="nho muted">' + maHoaChu(o.sdt) + '</div></td><td>' + dinhDangTien(o.tong) + '</td>' +
-            '<td><span class="status st-' + o.trangThai + '">' + TRANG_THAI[o.trangThai] + '</span></td>' +
-            '<td><button class="btn-line vw" onclick="moChiTietDon(\'' + o.ma + '\')">Chi tiết</button></td></tr>';
+        if (tk != "" && (o.ma + " " + o.sdt + " " + o.ten).toLowerCase().indexOf(tk) == -1) {
+            continue;
+        }
+        var v = viecTiepTheo(o);
+        var nut = "";
+        if (v != null && v.loai == "cho") {
+            nut = '<span class="muted nho">' + v.chu + '</span>';
+        } else if (v != null) {
+            nut = '<button class="btn-jb viec-' + v.loai + '" onclick="' + v.lenh + '">' + v.chu + '</button>';
+        }
+        hang = hang + '<tr class="' + (o.trangThai == "cho_xac_nhan" ? "hang-moi" : "") + '"><td><b>' + o.ma + '</b><div class="nho muted">' + thoiGianTruoc(o.ngay) + '</div></td>' +
+            '<td>' + maHoaChu(o.ten) + '<div class="nho muted">' + maHoaChu(o.sdt) + '</div></td>' +
+            '<td>' + (o.hinhThuc == "den_lay" ? "🏪 Đến lấy" : "🛵 Giao") + '</td><td><b>' + dinhDangTien(o.tong) + '</b><div>' + nhanThanhToan(o) + '</div></td>' +
+            '<td>' + nhanTrangThai(o) + '</td>' +
+            '<td class="nowrap">' + nut + ' <button class="btn-line vw" onclick="moChiTietDon(\'' + o.ma + '\')">Chi tiết</button></td></tr>';
     }
     if (hang == "") {
-        hang = '<tr><td colspan="6" class="text-center muted" style="padding:1.5rem">Chưa có đơn hàng.</td></tr>';
+        hang = '<tr><td colspan="6" class="text-center muted" style="padding:1.5rem">Không có đơn hàng phù hợp.</td></tr>';
     }
-    datHTML("view", '<div class="loc-don"><select id="of" class="o-nhap" onchange="locTrangThai = this.value; veDonHangQT();">' + opt + '</select></div>' +
-        '<div class="tbl"><table class="bang"><thead><tr><th>Mã đơn</th><th>Ngày đặt</th><th>Khách hàng</th><th>Tổng tiền</th><th>Trạng thái</th><th></th></tr></thead><tbody>' + hang + '</tbody></table></div>');
+    datHTML("bangDon", hang);
+}
+
+function veDonHangQT() {
+    var ds = layDonHang();
+    var dem = {};
+    for (var i = 0; i < ds.length; i++) {
+        dem[ds[i].trangThai] = (dem[ds[i].trangThai] || 0) + 1;
+    }
+    var chip = '<button class="chip-tt' + (locTrangThai == "" ? " on" : "") + '" onclick="chonLocQT(\'\')">Tất cả<b>' + ds.length + '</b></button>';
+    for (var k in TRANG_THAI) {
+        chip = chip + '<button class="chip-tt c-' + k + (locTrangThai == k ? " on" : "") + (k == "cho_xac_nhan" && dem[k] ? " can-xu-ly" : "") + '" onclick="chonLocQT(\'' + k + '\')">' + ICON_TT[k] + ' ' + TRANG_THAI[k] + '<b>' + (dem[k] || 0) + '</b></button>';
+    }
+    datHTML("view", (dem.cho_xac_nhan ? '<div class="bao-viec">🔔 Có <b>' + dem.cho_xac_nhan + '</b> đơn mới đang chờ bạn xác nhận.</div>' : '') +
+        '<div class="loc-chip">' + chip + '</div>' +
+        '<div class="loc-don"><input id="tkDon" class="o-nhap" placeholder="Tìm mã đơn, tên hoặc số điện thoại" value="' + maHoaChu(tuKhoaDon) + '"></div>' +
+        '<div class="tbl"><table class="bang bang-don"><thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Nhận hàng</th><th>Tổng tiền / thanh toán</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="bangDon"></tbody></table></div>');
+    layId("tkDon").oninput = function () { tuKhoaDon = this.value; veBangDonQT(); };
+    veBangDonQT();
 }
 
 function moChiTietDon(ma) {
@@ -193,7 +257,8 @@ function moChiTietDon(ma) {
     }
     datChu("omT", "Đơn hàng #" + o.ma);
     datHTML("omB",
-        '<p><span class="status st-' + o.trangThai + '">' + TRANG_THAI[o.trangThai] + '</span> · ' + (o.hinhThuc == "den_lay" ? "Đến lấy" : "Giao tận nơi") + ' · ' + (HINH_THUC_TT[o.thanhToan] || o.thanhToan) + ' · <b>' + (daThanhToan(o) ? "Đã thanh toán" : "Chưa thanh toán") + '</b></p>' +
+        veTienTrinh(o) + '<p class="tt-mota">' + moTaTrangThai(o) + ' <span class="muted nho">(đặt ' + thoiGianTruoc(o.ngay) + ')</span></p>' +
+        '<p><span class="status st-' + o.trangThai + '">' + ICON_TT[o.trangThai] + ' ' + TRANG_THAI[o.trangThai] + '</span> · ' + (o.hinhThuc == "den_lay" ? "Đến lấy" : "Giao tận nơi") + ' · ' + (HINH_THUC_TT[o.thanhToan] || o.thanhToan) + ' · <b>' + (daThanhToan(o) ? "Đã thanh toán" : "Chưa thanh toán") + '</b></p>' +
         '<p>Người nhận: <b>' + maHoaChu(o.ten) + '</b> – ' + maHoaChu(o.sdt) + '<br>Địa chỉ: ' + maHoaChu(o.diaChi) + (o.ghiChu ? "<br>Ghi chú: " + maHoaChu(o.ghiChu) : "") + '</p>' + dong +
         '<div class="sum-line"><span>Phí giao hàng</span><span>' + dinhDangTien(o.phiGiao) + '</span></div>' +
         '<div class="sum-line"><span>Giảm giá' + (o.maKM ? " (" + maHoaChu(o.maKM) + ")" : "") + '</span><span>-' + dinhDangTien(o.giamGia) + '</span></div>' +

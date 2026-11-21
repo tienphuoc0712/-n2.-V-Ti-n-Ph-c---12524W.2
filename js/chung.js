@@ -612,7 +612,13 @@ function dangKyTaiKhoan(hoTen, email, sdt, matKhau) {
             return { ok: false, thongBao: "Email này đã được đăng ký." };
         }
     }
-    var moi = { id: Date.now(), hoTen: hoTen, email: email.trim().toLowerCase(), sdt: sdt, matKhau: bamMatKhau(matKhau), vaiTro: "khach", biKhoa: false };
+    var maMoi = Date.now();          // tránh trùng mã khi hai tài khoản tạo trong cùng một mili-giây
+    for (var j = 0; j < ds.length; j++) {
+        if (ds[j].id >= maMoi) {
+            maMoi = ds[j].id + 1;
+        }
+    }
+    var moi = { id: maMoi, hoTen: hoTen, email: email.trim().toLowerCase(), sdt: sdt, matKhau: bamMatKhau(matKhau), vaiTro: "khach", biKhoa: false };
     ds.push(moi);
     luuNguoiDung(ds);
     ghiDuLieu("jb_dangNhap", moi.id);        // đăng ký xong tự đăng nhập luôn
@@ -793,6 +799,74 @@ function huyDonHang(ma) {
         return false;
     }
     return capNhatTrangThai(ma, "da_huy");
+}
+
+// ---- Hiển thị trạng thái đơn (dùng cho khách ở "Đơn hàng của tôi" và nhân viên ở trang quản trị) ----
+var ICON_TT = { cho_xac_nhan: "⏳", da_xac_nhan: "✅", dang_chuan_bi: "👨‍🍳", dang_giao: "🛵", da_giao: "🎉", da_huy: "✖", giao_that_bai: "⚠" };
+
+// Lời giải thích ngắn cho khách về việc đang diễn ra
+function moTaTrangThai(don) {
+    var kieu = don.hinhThuc == "den_lay";
+    var ma = don.trangThai;
+    if (ma == "cho_xac_nhan") { return "Cửa hàng đã nhận đơn và sẽ xác nhận trong ít phút."; }
+    if (ma == "da_xac_nhan") { return don.thanhToan == "bank" && daThanhToan(don) == false ? "Đã xác nhận. Cửa hàng bắt đầu làm món sau khi nhận được tiền chuyển khoản." : "Cửa hàng đã xác nhận đơn của bạn."; }
+    if (ma == "dang_chuan_bi") { return kieu ? "Món đang được chuẩn bị, bạn sẽ đến lấy khi có thông báo." : "Món của bạn đang được chuẩn bị."; }
+    if (ma == "dang_giao") { return "Shipper đang trên đường giao đến bạn."; }
+    if (ma == "da_giao") { return kieu ? "Bạn đã nhận hàng. Chúc ngon miệng!" : "Đơn đã giao thành công. Chúc ngon miệng!"; }
+    if (ma == "da_huy") { return "Đơn hàng đã được hủy."; }
+    return "Giao hàng không thành công, vui lòng liên hệ cửa hàng.";
+}
+
+// Các bước của đơn theo hình thức nhận hàng (đơn đến lấy không có bước "Đang giao")
+function cacBuocDon(don) {
+    if (don.hinhThuc == "den_lay") {
+        return ["cho_xac_nhan", "da_xac_nhan", "dang_chuan_bi", "da_giao"];
+    }
+    return ["cho_xac_nhan", "da_xac_nhan", "dang_chuan_bi", "dang_giao", "da_giao"];
+}
+
+// Thanh tiến trình: bước đã qua (✓), bước hiện tại (nổi bật), bước chưa tới (xám)
+function veTienTrinh(don) {
+    var cac = cacBuocDon(don);
+    if (don.trangThai == "da_huy" || don.trangThai == "giao_that_bai") {
+        return '<div class="tt-loi tt-' + don.trangThai + '">' + ICON_TT[don.trangThai] + ' ' + TRANG_THAI[don.trangThai] + '</div>';
+    }
+    var viTri = cac.indexOf(don.trangThai);
+    var html = '<ol class="tien-trinh">';
+    for (var i = 0; i < cac.length; i++) {
+        var lop = i < viTri || (i == viTri && cac[i] == "da_giao") ? "xong" : (i == viTri ? "dang" : "");
+        var nhan = TRANG_THAI[cac[i]];
+        if (cac[i] == "da_giao" && don.hinhThuc == "den_lay") {
+            nhan = "Đã nhận hàng";
+        }
+        html = html + '<li class="' + lop + '"><span class="cham">' + (lop == "xong" ? "✓" : (i + 1)) + '</span><span class="chu">' + nhan + '</span></li>';
+    }
+    return html + '</ol>';
+}
+
+// Nhãn trạng thái có biểu tượng
+function nhanTrangThai(don) {
+    return '<span class="status st-' + don.trangThai + '">' + ICON_TT[don.trangThai] + ' ' + TRANG_THAI[don.trangThai] + '</span>';
+}
+
+// Nhãn thanh toán: Đã thanh toán / Chưa thanh toán / Không thu tiền
+function nhanThanhToan(don) {
+    if (don.trangThai == "da_huy" || don.trangThai == "giao_that_bai") {
+        return '<span class="tt-nhan tt-khong">Không thu tiền</span>';
+    }
+    if (daThanhToan(don)) {
+        return '<span class="tt-nhan tt-da">Đã thanh toán</span>';
+    }
+    return '<span class="tt-nhan tt-chua">Chưa thanh toán</span>';
+}
+
+// "5 phút trước", "2 giờ trước", "3 ngày trước"
+function thoiGianTruoc(iso) {
+    var phut = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+    if (phut < 1) { return "vừa xong"; }
+    if (phut < 60) { return phut + " phút trước"; }
+    if (phut < 1440) { return Math.floor(phut / 60) + " giờ trước"; }
+    return Math.floor(phut / 1440) + " ngày trước";
 }
 
 // ================= 8. ĐÁNH GIÁ =================

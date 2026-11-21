@@ -3,16 +3,48 @@
 var nguoiXem = null;
 var TT_THANH_TOAN = { cod: "Tiền mặt khi nhận", bank: "Chuyển khoản", wallet: "Ví điện tử" };
 
+var locDonKhach = "all";      // all = tất cả, dang = đang xử lý, xong = đã giao, huy = đã hủy / thất bại
+
+// Nhóm của một đơn theo bộ lọc
+function nhomDon(don) {
+    if (don.trangThai == "da_giao") { return "xong"; }
+    if (don.trangThai == "da_huy" || don.trangThai == "giao_that_bai") { return "huy"; }
+    return "dang";
+}
+
+function chonLocDon(loc) {
+    locDonKhach = loc;
+    veDonHang();
+}
+
 function veDonHang() {
     var ds = layDonHang();
-    var html = "";
+    var cua = [];
+    var dem = { all: 0, dang: 0, xong: 0, huy: 0 };
     for (var i = 0; i < ds.length; i++) {
-        var don = ds[i];
-        if (don.email != nguoiXem.email) {
+        if (ds[i].email == nguoiXem.email) {
+            cua.push(ds[i]);
+            dem.all = dem.all + 1;
+            dem[nhomDon(ds[i])] = dem[nhomDon(ds[i])] + 1;
+        }
+    }
+    var tab = '<div class="loc-tab">';
+    var nhan = [["all", "Tất cả"], ["dang", "Đang xử lý"], ["xong", "Đã giao"], ["huy", "Đã hủy"]];
+    for (var t = 0; t < nhan.length; t++) {
+        tab = tab + '<button class="' + (locDonKhach == nhan[t][0] ? "on" : "") + '" onclick="chonLocDon(\'' + nhan[t][0] + '\')">' + nhan[t][1] + '<b>' + dem[nhan[t][0]] + '</b></button>';
+    }
+    tab = tab + '</div>';
+
+    var html = "";
+    for (var k = 0; k < cua.length; k++) {
+        var don = cua[k];
+        if (locDonKhach != "all" && nhomDon(don) != locDonKhach) {
             continue;
         }
         var dongMon = "";
+        var soMon = 0;
         for (var j = 0; j < don.mon.length; j++) {
+            soMon = soMon + don.mon[j].soLuong;
             dongMon = dongMon + '<div class="sum-line"><span>' + don.mon[j].soLuong + ' × ' + maHoaChu(don.mon[j].ten) + '</span><span>' + dinhDangTien(don.mon[j].gia * don.mon[j].soLuong) + '</span></div>';
         }
         var nutHuy = "";
@@ -23,16 +55,17 @@ function veDonHang() {
         if (don.thanhToan == "bank" && daThanhToan(don) == false && (don.trangThai == "cho_xac_nhan" || don.trangThai == "da_xac_nhan" || don.trangThai == "dang_chuan_bi" || don.trangThai == "dang_giao")) {
             nutQR = '<button class="btn-jb cx" onclick="xemQRDon(\'' + don.ma + '\')">Mã QR thanh toán</button> ';
         }
-        html = html + '<div class="box don"><div class="don-dau"><div><b>#' + don.ma + '</b> <small class="muted">' + new Date(don.ngay).toLocaleString("vi-VN") + '</small></div>' +
-            '<span class="status st-' + don.trangThai + '">' + TRANG_THAI[don.trangThai] + '</span></div><hr>' + dongMon +
-            '<div class="nho muted mt2">Người nhận: ' + maHoaChu(don.ten) + ' · ' + maHoaChu(don.sdt) + ' · ' + maHoaChu(don.diaChi) + '</div>' +
-            '<div class="nho muted">Thanh toán: ' + maHoaChu(TT_THANH_TOAN[don.thanhToan] || don.thanhToan) + ' · ' + (daThanhToan(don) ? "Đã thanh toán" : (don.trangThai == "da_huy" || don.trangThai == "giao_that_bai" ? "Không thu tiền" : "Chưa thanh toán")) + '</div>' +
+        html = html + '<div class="box don m-' + don.trangThai + '"><div class="don-dau"><div><b>#' + don.ma + '</b> <small class="muted">' + new Date(don.ngay).toLocaleString("vi-VN") + ' · ' + thoiGianTruoc(don.ngay) + '</small></div>' +
+            nhanTrangThai(don) + '</div>' + veTienTrinh(don) + '<p class="tt-mota">' + moTaTrangThai(don) + '</p><hr>' +
+            '<details class="don-mon"' + (cua.length == 1 ? " open" : "") + '><summary>' + soMon + ' phần · xem chi tiết món</summary>' + dongMon + '</details>' +
+            '<div class="don-thongtin nho muted"><span>' + (don.hinhThuc == "den_lay" ? "Đến lấy tại cửa hàng" : "Giao tận nơi") + '</span><span>Người nhận: ' + maHoaChu(don.ten) + ' · ' + maHoaChu(don.sdt) + '</span><span>' + maHoaChu(don.diaChi) + '</span></div>' +
+            '<div class="don-thongtin"><span class="nho muted">' + maHoaChu(TT_THANH_TOAN[don.thanhToan] || don.thanhToan) + '</span>' + nhanThanhToan(don) + '</div>' +
             '<div class="don-cuoi"><b class="don-tong">' + dinhDangTien(don.tong) + '</b><span>' + nutQR + nutHuy + '</span></div></div>';
     }
     if (html == "") {
-        html = '<div class="rong-trong">Bạn chưa có đơn hàng nào.<br><a class="btn-jb mt3" href="thucdon.html">Đặt món ngay</a></div>';
+        html = '<div class="rong-trong">' + (cua.length == 0 ? 'Bạn chưa có đơn hàng nào.' : 'Không có đơn nào trong mục này.') + '<br><a class="btn-jb mt3" href="thucdon.html">Đặt món ngay</a></div>';
     }
-    datHTML("list", html);
+    datHTML("list", tab + html);
 }
 
 // Mở lại mã QR chuyển khoản của đơn: số tiền đúng bằng tổng thanh toán của đơn đó

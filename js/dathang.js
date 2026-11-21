@@ -38,7 +38,8 @@ function veQRDatHang(tong) {
     var o = layId("qrBox");
     if (layRadio("pay") == "bank") {
         o.style.display = "";
-        o.innerHTML = '<label class="nhan">Quét mã QR để chuyển khoản</label>' + veKhungQR(tong, "JOLLIBEE THANH TOAN");
+        o.innerHTML = '<label class="nhan">Mã QR chuyển khoản (xem trước số tiền)</label>' + veKhungQR(tong, "JOLLIBEE THANH TOAN", true) +
+            '<p class="nho muted qr-ghi"><b>Lưu ý:</b> vui lòng chưa chuyển khoản ở bước này. Sau khi bấm “Xác nhận đặt hàng”, hệ thống sẽ hiện mã QR có kèm mã đơn để cửa hàng đối chiếu.</p>';
     } else {
         o.style.display = "none";
         o.innerHTML = "";
