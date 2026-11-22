@@ -19,13 +19,14 @@ function veTomTat() {
     var hinhThuc = layRadio("mode");
     luuHinhThuc(hinhThuc);
     layId("addrBox").style.display = hinhThuc == "giao_tan_noi" ? "" : "none";     // đến lấy thì không cần địa chỉ
+    layId("khuVucBox").style.display = hinhThuc == "giao_tan_noi" ? "" : "none";
     var dong = layDongGio();
     var html = "";
     for (var i = 0; i < dong.length; i++) {
         html = html + '<div class="sum-line"><span>' + dong[i].soLuong + ' × ' + maHoaChu(dong[i].mon.ten) + '</span><span>' + dinhDangTien(dong[i].thanhTien) + '</span></div>';
     }
     datHTML("sumLines", html);
-    var t = tinhTien(layTamTinh(), hinhThuc, kmDatHang);
+    var t = tinhTien(layTamTinh(), hinhThuc, kmDatHang, layKhuVuc());
     datChu("s1", dinhDangTien(t.tamTinh));
     datChu("s2", dinhDangTien(t.phiGiao));
     datChu("s3", "-" + dinhDangTien(t.giamGia));
@@ -81,6 +82,7 @@ function xacNhanDatHang() {
         diaChi: diaChi,
         ghiChu: layGiaTri("note"),
         hinhThuc: hinhThuc,
+        khuVuc: layKhuVuc(),
         thanhToan: layRadio("pay"),
         maKM: kmDatHang == null ? "" : kmDatHang.ma
     });
@@ -138,5 +140,6 @@ function khoiTaoDatHang() {
         pay[k].onchange = veTomTat;
     }
     layId("place").onclick = xacNhanDatHang;
+    veChonKhuVuc("khuVucBox", veTomTat);
     veTomTat();
 }

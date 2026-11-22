@@ -47,7 +47,8 @@ function veGioHang() {
             datHTML("pm", '<span style="color:#dc3545">Mã không còn đủ điều kiện áp dụng.</span>');
         }
     }
-    var t = tinhTien(layTamTinh(), layHinhThuc(), kmDangDung);
+    layId("khuVucBox").style.display = layHinhThuc() == "giao_tan_noi" ? "" : "none";      // đến lấy thì không tính phí giao
+    var t = tinhTien(layTamTinh(), layHinhThuc(), kmDangDung, layKhuVuc());
     datChu("s1", dinhDangTien(t.tamTinh));
     datChu("s2", dinhDangTien(t.phiGiao));
     datChu("s3", "-" + dinhDangTien(t.giamGia));
@@ -127,6 +128,7 @@ function khoiTaoGioHang() {
         o[i].checked = o[i].value == layHinhThuc();
         o[i].onchange = doiHinhThuc;
     }
+    veChonKhuVuc("khuVucBox", veGioHang);
     layId("ap").onclick = apDungMa;
     layId("go").onclick = function () { location.href = "dathang.html"; };
     veGioHang();
