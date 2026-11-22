@@ -28,7 +28,7 @@ Mở `html/trangchu.html` bằng trình duyệt (hoặc `index.html`, hoặc Liv
 ## Mã giảm giá thử
 `JOLLY10` (giảm 10% đơn từ 100.000đ), `FREESHIP` (miễn phí giao, đơn từ 150.000đ), `WELCOME20` (giảm 20.000đ, đơn từ 80.000đ)
 
-## Tính năng mới (xem NHAT_KY_RA_SOAT.md mục G)
+## Tính năng mới 
 Quên mật khẩu (email + SĐT đã đăng ký), đổi mật khẩu/hồ sơ, đặt lại đơn cũ, phí giao theo khu vực (15k/25k/35k), mã KM có số lượt tối đa và sửa được, quản lý danh mục, tạo tài khoản nhân viên/quản trị + phân quyền, ẩn/xóa đánh giá.
 
 ## Ghi chú
