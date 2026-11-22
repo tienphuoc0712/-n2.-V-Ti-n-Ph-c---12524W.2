@@ -1265,17 +1265,12 @@ document.addEventListener("keydown", function (e) {
 function capNhatDauTrang() {
     var nguoi = layNguoiDangNhap();
     var taiKhoan = '<a href="dangnhap.html">ĐĂNG KÝ / ĐĂNG NHẬP</a>';
-    if (nguoi != null) {
+    if (nguoi != null) {                            // không hiện tên người dùng ở thanh trên
+        taiKhoan = "";
         if (nguoi.vaiTro == "khach") {
-            taiKhoan = '<a href="taikhoan.html">' + maHoaChu(nguoi.hoTen) + '</a><span class="sep"></span>';
-        } else {                                    // nhân viên / quản trị: chỉ hiện tên, không có liên kết
-            taiKhoan = '<span class="jb-ten">' + maHoaChu(nguoi.hoTen) + '</span><span class="sep"></span>';
-        }
-        if (nguoi.vaiTro == "khach") {
-            taiKhoan = taiKhoan + '<a href="donhang.html">ĐƠN HÀNG</a><span class="sep"></span>';
-        }
-        if (nguoi.vaiTro != "khach") {
-            taiKhoan = taiKhoan + '<a href="quantri.html">QUẢN TRỊ</a><span class="sep"></span>';
+            taiKhoan = '<a href="taikhoan.html">TÀI KHOẢN</a><span class="sep"></span>';
+        } else {
+            taiKhoan = '<a href="quantri.html">QUẢN TRỊ</a><span class="sep"></span>';
         }
         taiKhoan = taiKhoan + '<a href="#" onclick="dangXuat(); return false;">ĐĂNG XUẤT</a>';
     }
@@ -1288,6 +1283,15 @@ function capNhatDauTrang() {
             menu = menu + '<a href="thucdon.html?cat=' + encodeURIComponent(dm[i].ma) + '"><img src="' + maHoaChu(dm[i].anh || "") + '" alt="" onerror="this.style.visibility=\'hidden\'">' + maHoaChu(dm[i].ten) + '</a>';
         }
         mega[0].innerHTML = menu;
+    }
+    var gio = layId("jb-gio");                     // nút "Đơn hàng" cạnh giỏ hàng, chỉ cho khách đã đăng nhập
+    if (gio != null && document.getElementById("jb-don") == null && nguoi != null && nguoi.vaiTro == "khach") {
+        var nut = document.createElement("a");
+        nut.className = "jb-cart jb-don";
+        nut.id = "jb-don";
+        nut.href = "donhang.html";
+        nut.textContent = "Đơn hàng";
+        gio.parentNode.insertBefore(nut, gio);
     }
     if (duocMuaHang() == false) {                  // nhân viên / quản trị không có giỏ hàng, không có "Đơn hàng của tôi"
         layId("jb-gio").style.display = "none";
