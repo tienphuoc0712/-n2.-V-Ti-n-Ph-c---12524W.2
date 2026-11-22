@@ -55,12 +55,16 @@ function veDonHang() {
         if (don.thanhToan == "bank" && daThanhToan(don) == false && (don.trangThai == "cho_xac_nhan" || don.trangThai == "da_xac_nhan" || don.trangThai == "dang_chuan_bi" || don.trangThai == "dang_giao")) {
             nutQR = '<button class="btn-jb cx" onclick="xemQRDon(\'' + don.ma + '\')">Mã QR thanh toán</button> ';
         }
+        var nutDatLai = "";
+        if (don.trangThai == "da_giao" || don.trangThai == "da_huy" || don.trangThai == "giao_that_bai") {          // đơn đã kết thúc thì cho đặt lại
+            nutDatLai = '<button class="btn-line cx" onclick="bamDatLaiDon(\'' + don.ma + '\')">Đặt lại đơn</button> ';
+        }
         html = html + '<div class="box don m-' + don.trangThai + '"><div class="don-dau"><div><b>#' + don.ma + '</b> <small class="muted">' + new Date(don.ngay).toLocaleString("vi-VN") + ' · ' + thoiGianTruoc(don.ngay) + '</small></div>' +
             nhanTrangThai(don) + '</div>' + veTienTrinh(don) + '<p class="tt-mota">' + moTaTrangThai(don) + '</p><hr>' +
             '<details class="don-mon"' + (cua.length == 1 ? " open" : "") + '><summary>' + soMon + ' phần · xem chi tiết món</summary>' + dongMon + '</details>' +
-            '<div class="don-thongtin nho muted"><span>' + (don.hinhThuc == "den_lay" ? "Đến lấy tại cửa hàng" : "Giao tận nơi") + '</span><span>Người nhận: ' + maHoaChu(don.ten) + ' · ' + maHoaChu(don.sdt) + '</span><span>' + maHoaChu(don.diaChi) + '</span></div>' +
+            '<div class="don-thongtin nho muted"><span>' + (don.hinhThuc == "den_lay" ? "Đến lấy tại cửa hàng" : "Giao tận nơi" + (don.khuVuc ? " (" + maHoaChu(don.khuVuc) + ")" : "")) + '</span><span>Người nhận: ' + maHoaChu(don.ten) + ' · ' + maHoaChu(don.sdt) + '</span><span>' + maHoaChu(don.diaChi) + '</span></div>' +
             '<div class="don-thongtin"><span class="nho muted">' + maHoaChu(TT_THANH_TOAN[don.thanhToan] || don.thanhToan) + '</span>' + nhanThanhToan(don) + '</div>' +
-            '<div class="don-cuoi"><b class="don-tong">' + dinhDangTien(don.tong) + '</b><span>' + nutQR + nutHuy + '</span></div></div>';
+            '<div class="don-cuoi"><b class="don-tong">' + dinhDangTien(don.tong) + '</b><span>' + nutQR + nutDatLai + nutHuy + '</span></div></div>';
     }
     if (html == "") {
         html = '<div class="rong-trong">' + (cua.length == 0 ? 'Bạn chưa có đơn hàng nào.' : 'Không có đơn nào trong mục này.') + '<br><a class="btn-jb mt3" href="thucdon.html">Đặt món ngay</a></div>';
@@ -77,6 +81,17 @@ function xemQRDon(ma) {
     hienHopThoai("Thanh toán đơn #" + ma, veKhungQR(don.tong, don.ma));
 }
 
+// Đặt lại đơn cũ: đưa các món còn bán vào giỏ rồi sang trang giỏ hàng
+function bamDatLaiDon(ma) {
+    var kq = datLaiDon(ma);
+    if (kq.ok == false) {
+        thongBao("Không thể đặt lại: các món trong đơn đã ngừng bán hoặc giỏ đã đầy.");
+        return;
+    }
+    thongBao("Đã thêm " + kq.soMon + " món vào giỏ" + (kq.boQua > 0 ? " (" + kq.boQua + " món đã ngừng bán được bỏ qua)" : ""));
+    setTimeout(function () { location.href = "giohang.html"; }, 900);
+}
+
 function bamHuyDon(ma) {
     if (confirm("Bạn chắc chắn muốn hủy đơn này?")) {
         var daHuy = huyDonHang(ma);
@@ -90,6 +105,10 @@ function khoiTaoDonHang() {
     nguoiXem = layNguoiDangNhap();
     if (nguoiXem == null) {
         location.href = "dangnhap.html?next=donhang.html";
+        return;
+    }
+    if (nguoiXem.vaiTro != "khach") {         // theo dõi đơn của nhân viên nằm trong trang quản trị
+        location.href = "quantri.html";
         return;
     }
     veDonHang();
