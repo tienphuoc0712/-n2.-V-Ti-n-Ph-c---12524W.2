@@ -3,7 +3,13 @@
 // và đoạn giao diện dùng lại (đầu trang, chân trang, thẻ món ăn, thông báo, hộp thoại).
 // Mỗi trang nhúng dulieu.js, rồi chung.js, rồi file js riêng của trang. (Không dùng jQuery.)
 
-var PHI_GIAO = 15000;      // phí giao hàng cố định
+// Phí giao hàng theo khoảng cách (khách chọn khu vực giao ở trang giỏ hàng / đặt hàng)
+var KHU_VUC = {
+    gan: { ten: "Trong bán kính 3 km", phi: 15000 },
+    vua: { ten: "Từ 3 đến 7 km", phi: 25000 },
+    xa: { ten: "Từ 7 đến 12 km", phi: 35000 }
+};
+var PHI_GIAO = KHU_VUC.gan.phi;   // phí thấp nhất (khu vực gần)
 var TOI_DA = 20;           // mỗi món tối đa 20 phần trong giỏ
 
 // Các trạng thái của đơn hàng: mã -> chữ hiển thị
@@ -68,6 +74,7 @@ function khoiTaoDuLieu() {
         return;
     }
     ghiDuLieu("jb_monAn", DU_LIEU.monAn);
+    ghiDuLieu("jb_danhMuc", DU_LIEU.danhMuc);
     ghiDuLieu("jb_khuyenMai", DU_LIEU.khuyenMai);
     ghiDuLieu("jb_nguoiDung", [
         { id: 1, hoTen: "Quản trị viên", email: "admin@jollibee.vn", sdt: "0900000001", matKhau: bamMatKhau("admin123"), vaiTro: "quantri", biKhoa: false },
@@ -81,6 +88,9 @@ function khoiTaoDuLieu() {
 
 // Dữ liệu đã lưu từ bản cũ: bổ sung các trường mới (mã WELCOME20 chỉ áp dụng cho đơn đầu tiên)
 function nangCapDuLieu() {
+    if (docDuLieu("jb_danhMuc", null) == null) {         // bản cũ chưa lưu danh mục
+        ghiDuLieu("jb_danhMuc", DU_LIEU.danhMuc);
+    }
     var ds = docDuLieu("jb_khuyenMai", []);
     var doi = false;
     for (var i = 0; i < ds.length; i++) {
@@ -190,14 +200,20 @@ function timMon(id) {
     return null;
 }
 
+// Danh mục lưu ở localStorage (khóa jb_danhMuc) để quản trị viên thêm/sửa/xóa được
 function layDanhMuc() {
-    return DU_LIEU.danhMuc;
+    return docDuLieu("jb_danhMuc", DU_LIEU.danhMuc);
+}
+
+function luuDanhMuc(ds) {
+    ghiDuLieu("jb_danhMuc", ds);
 }
 
 function timDanhMuc(ma) {
-    for (var i = 0; i < DU_LIEU.danhMuc.length; i++) {
-        if (DU_LIEU.danhMuc[i].ma == ma) {
-            return DU_LIEU.danhMuc[i];
+    var ds = layDanhMuc();
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].ma == ma) {
+            return ds[i];
         }
     }
     return null;
@@ -446,6 +462,32 @@ function luuHinhThuc(hinhThuc) {
 
 // ================= 5. KHUYẾN MÃI VÀ TÍNH TIỀN =================
 
+// Khu vực giao hàng đang chọn (lưu lại để giỏ hàng và trang đặt hàng dùng chung)
+function layKhuVuc() {
+    var k = docDuLieu("jb_khuVuc", "gan");
+    return KHU_VUC[k] ? k : "gan";
+}
+
+function luuKhuVuc(k) {
+    if (KHU_VUC[k]) {
+        ghiDuLieu("jb_khuVuc", k);
+    }
+}
+
+// Vẽ ô chọn khu vực vào phần tử idHop; khiDoi() được gọi mỗi khi khách đổi lựa chọn
+function veChonKhuVuc(idHop, khiDoi) {
+    var html = '<label class="nhan dong" style="display:block">Khu vực giao hàng (tính phí theo khoảng cách)</label><select id="khuVucChon" class="o-nhap">';
+    for (var k in KHU_VUC) {
+        html = html + '<option value="' + k + '">' + KHU_VUC[k].ten + ' – ' + dinhDangTien(KHU_VUC[k].phi) + '</option>';
+    }
+    datHTML(idHop, html + '</select>');
+    layId("khuVucChon").value = layKhuVuc();
+    layId("khuVucChon").onchange = function () {
+        luuKhuVuc(this.value);
+        khiDoi();
+    };
+}
+
 // Chương trình còn hiệu lực: đang bật và (nếu có khai báo) hôm nay nằm trong khoảng tuNgay..denNgay
 function conHieuLuc(km) {
     if (!km.dangBan) {
@@ -500,6 +542,18 @@ function daDungMa(email, ma) {
 }
 
 // Tài khoản này đã có đơn nào (chưa hủy / chưa giao thất bại) chưa? Dùng cho mã chỉ áp dụng đơn đầu tiên
+// Số lượt mã đã được dùng (đơn bị hủy / giao thất bại thì không tính)
+function soLuotDaDung(ma) {
+    var ds = layDonHang();
+    var dem = 0;
+    for (var i = 0; i < ds.length; i++) {
+        if (String(ds[i].maKM).toUpperCase() == String(ma).toUpperCase() && ds[i].trangThai != "da_huy" && ds[i].trangThai != "giao_that_bai") {
+            dem = dem + 1;
+        }
+    }
+    return dem;
+}
+
 function daCoDon(email) {
     var ds = layDonHang();
     for (var i = 0; i < ds.length; i++) {
@@ -525,6 +579,9 @@ function kiemTraMa(ma, tamTinh) {
             if (ds[i].donDau && daCoDon(nguoi.email)) {
                 return { ok: false, thongBao: "Mã này chỉ áp dụng cho đơn hàng đầu tiên của tài khoản." };
             }
+            if (ds[i].luotToiDa > 0 && soLuotDaDung(ds[i].ma) >= ds[i].luotToiDa) {
+                return { ok: false, thongBao: "Mã này đã hết lượt sử dụng." };
+            }
             if (tamTinh < ds[i].toiThieu) {
                 return { ok: false, thongBao: "Đơn tối thiểu " + dinhDangTien(ds[i].toiThieu) + " để dùng mã này." };
             }
@@ -536,8 +593,8 @@ function kiemTraMa(ma, tamTinh) {
 
 // Tổng tiền = tạm tính - giảm giá + phí giao
 // (đến lấy tại cửa hàng thì không mất phí giao; mã miễn phí giao thì phí giao = 0)
-function tinhTien(tamTinh, hinhThuc, km) {
-    var phi = PHI_GIAO;
+function tinhTien(tamTinh, hinhThuc, km, khuVuc) {
+    var phi = (KHU_VUC[khuVuc] || KHU_VUC.gan).phi;
     var giam = 0;
     if (hinhThuc == "den_lay") {
         phi = 0;
@@ -605,6 +662,17 @@ function layNguoiDangNhap() {
     return null;
 }
 
+// Mã tài khoản mới luôn lớn hơn mọi mã đã có (tránh trùng khi tạo cùng một mili-giây)
+function taoMaNguoiDung(ds) {
+    var maMoi = Date.now();
+    for (var j = 0; j < ds.length; j++) {
+        if (ds[j].id >= maMoi) {
+            maMoi = ds[j].id + 1;
+        }
+    }
+    return maMoi;
+}
+
 function dangKyTaiKhoan(hoTen, email, sdt, matKhau) {
     var ds = layNguoiDung();
     for (var i = 0; i < ds.length; i++) {
@@ -612,13 +680,7 @@ function dangKyTaiKhoan(hoTen, email, sdt, matKhau) {
             return { ok: false, thongBao: "Email này đã được đăng ký." };
         }
     }
-    var maMoi = Date.now();          // tránh trùng mã khi hai tài khoản tạo trong cùng một mili-giây
-    for (var j = 0; j < ds.length; j++) {
-        if (ds[j].id >= maMoi) {
-            maMoi = ds[j].id + 1;
-        }
-    }
-    var moi = { id: maMoi, hoTen: hoTen, email: email.trim().toLowerCase(), sdt: sdt, matKhau: bamMatKhau(matKhau), vaiTro: "khach", biKhoa: false };
+    var moi = { id: taoMaNguoiDung(ds), hoTen: hoTen, email: email.trim().toLowerCase(), sdt: sdt, matKhau: bamMatKhau(matKhau), vaiTro: "khach", biKhoa: false };
     ds.push(moi);
     luuNguoiDung(ds);
     ghiDuLieu("jb_dangNhap", moi.id);        // đăng ký xong tự đăng nhập luôn
@@ -640,6 +702,128 @@ function dangNhapTaiKhoan(email, matKhau) {
         }
     }
     return { ok: false, thongBao: "Email hoặc mật khẩu không đúng." };
+}
+
+// Quên mật khẩu (không có máy chủ gửi email nên xác minh bằng email + số điện thoại đã đăng ký)
+function datLaiMatKhauQuen(email, sdt, matKhauMoi) {
+    if (matKhauMoi.length < 6) {
+        return { ok: false, thongBao: "Mật khẩu tối thiểu 6 ký tự." };
+    }
+    var ds = layNguoiDung();
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].email.toLowerCase() == email.trim().toLowerCase() && ds[i].sdt == sdt.trim() && ds[i].vaiTro == "khach") {
+            ds[i].matKhau = bamMatKhau(matKhauMoi);
+            luuNguoiDung(ds);
+            return { ok: true };
+        }
+    }
+    return { ok: false, thongBao: "Email và số điện thoại không khớp với tài khoản nào." };
+}
+
+// Đổi mật khẩu của người đang đăng nhập (phải nhập đúng mật khẩu hiện tại)
+function doiMatKhau(matKhauCu, matKhauMoi) {
+    var nguoi = layNguoiDangNhap();
+    if (nguoi == null) {
+        return { ok: false, thongBao: "Vui lòng đăng nhập." };
+    }
+    if (nguoi.matKhau != bamMatKhau(matKhauCu)) {
+        return { ok: false, thongBao: "Mật khẩu hiện tại không đúng." };
+    }
+    if (matKhauMoi.length < 6) {
+        return { ok: false, thongBao: "Mật khẩu mới tối thiểu 6 ký tự." };
+    }
+    var ds = layNguoiDung();
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].id == nguoi.id) {
+            ds[i].matKhau = bamMatKhau(matKhauMoi);
+        }
+    }
+    luuNguoiDung(ds);
+    return { ok: true };
+}
+
+// Cập nhật họ tên, số điện thoại, địa chỉ của người đang đăng nhập (email không đổi)
+function capNhatHoSo(hoTen, sdt, diaChi) {
+    var nguoi = layNguoiDangNhap();
+    if (nguoi == null) {
+        return { ok: false, thongBao: "Vui lòng đăng nhập." };
+    }
+    if (String(hoTen).trim() == "") {
+        return { ok: false, thongBao: "Vui lòng nhập họ tên." };
+    }
+    if (sdtHopLe(sdt) == false) {
+        return { ok: false, thongBao: "Số điện thoại gồm 10 số, bắt đầu bằng 0." };
+    }
+    var ds = layNguoiDung();
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].id == nguoi.id) {
+            ds[i].hoTen = String(hoTen).trim();
+            ds[i].sdt = sdt;
+            ds[i].diaChi = String(diaChi).trim();
+        }
+    }
+    luuNguoiDung(ds);
+    return { ok: true };
+}
+
+// ---- Các hàm dưới đây chỉ quản trị viên được dùng ----
+function laQuanTriDangNhap() {
+    var nguoi = layNguoiDangNhap();
+    return nguoi != null && nguoi.vaiTro == "quantri";
+}
+
+// Tạo tài khoản nhân viên hoặc quản trị viên
+function taoTaiKhoanNoiBo(hoTen, email, sdt, matKhau, vaiTro) {
+    if (laQuanTriDangNhap() == false) {
+        return { ok: false, thongBao: "Chỉ quản trị viên được tạo tài khoản nội bộ." };
+    }
+    if (vaiTro != "nhanvien" && vaiTro != "quantri") {
+        return { ok: false, thongBao: "Vai trò không hợp lệ." };
+    }
+    if (String(hoTen).trim() == "" || emailHopLe(email) == false || sdtHopLe(sdt) == false || matKhau.length < 6) {
+        return { ok: false, thongBao: "Nhập đủ họ tên, email, số điện thoại hợp lệ và mật khẩu từ 6 ký tự." };
+    }
+    var ds = layNguoiDung();
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].email.toLowerCase() == email.trim().toLowerCase()) {
+            return { ok: false, thongBao: "Email này đã được đăng ký." };
+        }
+    }
+    ds.push({ id: taoMaNguoiDung(ds), hoTen: String(hoTen).trim(), email: email.trim().toLowerCase(), sdt: sdt, matKhau: bamMatKhau(matKhau), vaiTro: vaiTro, biKhoa: false });
+    luuNguoiDung(ds);
+    return { ok: true };
+}
+
+// Phân quyền: đổi vai trò (không đổi vai trò của chính mình để không mất quyền quản trị)
+function doiVaiTro(id, vaiTro) {
+    if (laQuanTriDangNhap() == false || (vaiTro != "khach" && vaiTro != "nhanvien" && vaiTro != "quantri")) {
+        return false;
+    }
+    var ds = layNguoiDung();
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].id == id && ds[i].id != layNguoiDangNhap().id) {
+            ds[i].vaiTro = vaiTro;
+            luuNguoiDung(ds);
+            return true;
+        }
+    }
+    return false;
+}
+
+// Đặt lại mật khẩu cho một tài khoản khi người dùng không tự khôi phục được
+function datLaiMatKhauNguoiDung(id, matKhauMoi) {
+    if (laQuanTriDangNhap() == false || matKhauMoi.length < 6) {
+        return false;
+    }
+    var ds = layNguoiDung();
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].id == id) {
+            ds[i].matKhau = bamMatKhau(matKhauMoi);
+            luuNguoiDung(ds);
+            return true;
+        }
+    }
+    return false;
 }
 
 function dangXuat() {
@@ -703,7 +887,8 @@ function taoDonHang(thongTin) {
         }
         km = kq.km;
     }
-    var t = tinhTien(tamTinh, thongTin.hinhThuc, km);
+    var khuVuc = KHU_VUC[thongTin.khuVuc] ? thongTin.khuVuc : "gan";
+    var t = tinhTien(tamTinh, thongTin.hinhThuc, km, khuVuc);
 
     var mon = [];
     for (var i = 0; i < dong.length; i++) {
@@ -720,6 +905,7 @@ function taoDonHang(thongTin) {
         diaChi: thongTin.diaChi,
         ghiChu: thongTin.ghiChu,
         hinhThuc: thongTin.hinhThuc,
+        khuVuc: thongTin.hinhThuc == "giao_tan_noi" ? KHU_VUC[khuVuc].ten : "",
         thanhToan: thongTin.thanhToan,
         daThanhToan: thongTin.thanhToan == "wallet",      // ví điện tử (mô phỏng) trả ngay; chuyển khoản chờ cửa hàng xác nhận; tiền mặt trả khi nhận
         maKM: km == null ? "" : km.ma,
@@ -801,6 +987,38 @@ function huyDonHang(ma) {
     return capNhatTrangThai(ma, "da_huy");
 }
 
+// Đặt lại đơn cũ: thêm các món của đơn vào giỏ (bỏ qua món đã ngừng bán, không vượt quá số phần tối đa)
+// Trả về { ok, soMon, boQua }
+function datLaiDon(ma) {
+    var nguoi = layNguoiDangNhap();
+    var don = timDon(ma);
+    if (nguoi == null || don == null || don.email != nguoi.email || duocMuaHang() == false) {
+        return { ok: false, soMon: 0, boQua: 0 };
+    }
+    var them = 0;
+    var boQua = 0;
+    for (var i = 0; i < don.mon.length; i++) {
+        var mon = timMon(don.mon[i].id);
+        if (mon == null || mon.dangBan == false) {
+            boQua = boQua + 1;
+            continue;
+        }
+        var daCo = 0;
+        var gio = layGioHang();
+        for (var j = 0; j < gio.length; j++) {
+            if (gio[j].id == mon.id) {
+                daCo = gio[j].soLuong;
+            }
+        }
+        var duocThem = Math.min(don.mon[i].soLuong, TOI_DA - daCo);
+        if (duocThem > 0) {
+            themMonVaoGio(mon.id, duocThem);
+            them = them + 1;
+        }
+    }
+    return { ok: them > 0, soMon: them, boQua: boQua };
+}
+
 // ---- Hiển thị trạng thái đơn (dùng cho khách ở "Đơn hàng của tôi" và nhân viên ở trang quản trị) ----
 var ICON_TT = { cho_xac_nhan: "⏳", da_xac_nhan: "✅", dang_chuan_bi: "👨‍🍳", dang_giao: "🛵", da_giao: "🎉", da_huy: "✖", giao_that_bai: "⚠" };
 
@@ -870,13 +1088,24 @@ function thoiGianTruoc(iso) {
 }
 
 // ================= 8. ĐÁNH GIÁ =================
+
+// Vẽ số sao: 4 sao = ★★★★☆
+function veSao(diem) {
+    var chu = "";
+    for (var i = 1; i <= 5; i++) {
+        chu = chu + (i <= Math.round(diem) ? "★" : "☆");
+    }
+    return chu;
+}
+
 // Đánh giá: { idMon, email, ten, soSao, noiDung, ngay }
 
-function layDanhGia(idMon) {
+// Đánh giá bị quản trị viên ẩn (an = true) không hiện ra cho khách; tatCa = true thì lấy cả đánh giá bị ẩn
+function layDanhGia(idMon, tatCa) {
     var ds = docDuLieu("jb_danhGia", []);
     var kq = [];
     for (var i = 0; i < ds.length; i++) {
-        if (ds[i].idMon == idMon) {
+        if (ds[i].idMon == idMon && (tatCa == true || !ds[i].an)) {
             kq.push(ds[i]);
         }
     }
@@ -885,7 +1114,7 @@ function layDanhGia(idMon) {
 
 // Mỗi khách chỉ có MỘT đánh giá cho mỗi món: đã đánh giá rồi thì cập nhật lại
 function layDanhGiaCuaKhach(email, idMon) {
-    var ds = layDanhGia(idMon);
+    var ds = layDanhGia(idMon, true);
     for (var i = 0; i < ds.length; i++) {
         if (ds[i].email == email) {
             return ds[i];
@@ -900,10 +1129,45 @@ function themDanhGia(danhGia) {
     for (var i = 0; i < tatCa.length; i++) {
         if (!(tatCa[i].idMon == danhGia.idMon && tatCa[i].email == danhGia.email)) {
             ds.push(tatCa[i]);
+        } else if (tatCa[i].an) {
+            danhGia.an = true;              // đánh giá đã bị ẩn thì sửa lại vẫn bị ẩn, chờ quản trị viên duyệt
         }
     }
     ds.unshift(danhGia);
     ghiDuLieu("jb_danhGia", ds);
+}
+
+// Xóa đánh giá: chủ đánh giá xóa của mình, quản trị viên xóa được mọi đánh giá vi phạm
+function xoaDanhGia(idMon, email) {
+    var nguoi = layNguoiDangNhap();
+    if (nguoi == null || (nguoi.email != email && nguoi.vaiTro != "quantri")) {
+        return false;
+    }
+    var tatCa = docDuLieu("jb_danhGia", []);
+    var ds = [];
+    for (var i = 0; i < tatCa.length; i++) {
+        if (!(tatCa[i].idMon == idMon && tatCa[i].email == email)) {
+            ds.push(tatCa[i]);
+        }
+    }
+    ghiDuLieu("jb_danhGia", ds);
+    return ds.length < tatCa.length;
+}
+
+// Kiểm duyệt: quản trị viên ẩn / hiện lại một đánh giá
+function anHienDanhGia(idMon, email) {
+    if (laQuanTriDangNhap() == false) {
+        return false;
+    }
+    var ds = docDuLieu("jb_danhGia", []);
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].idMon == idMon && ds[i].email == email) {
+            ds[i].an = !ds[i].an;
+            ghiDuLieu("jb_danhGia", ds);
+            return true;
+        }
+    }
+    return false;
 }
 
 // Chỉ khách đã nhận món (đơn "Đã giao") mới được đánh giá món đó
@@ -1002,15 +1266,35 @@ function capNhatDauTrang() {
     var nguoi = layNguoiDangNhap();
     var taiKhoan = '<a href="dangnhap.html">ĐĂNG KÝ / ĐĂNG NHẬP</a>';
     if (nguoi != null) {
-        taiKhoan = '<a href="donhang.html">' + maHoaChu(nguoi.hoTen) + '</a><span class="sep"></span>';
+        if (nguoi.vaiTro == "khach") {
+            taiKhoan = '<a href="taikhoan.html">' + maHoaChu(nguoi.hoTen) + '</a><span class="sep"></span>';
+        } else {                                    // nhân viên / quản trị: chỉ hiện tên, không có liên kết
+            taiKhoan = '<span class="jb-ten">' + maHoaChu(nguoi.hoTen) + '</span><span class="sep"></span>';
+        }
+        if (nguoi.vaiTro == "khach") {
+            taiKhoan = taiKhoan + '<a href="donhang.html">ĐƠN HÀNG</a><span class="sep"></span>';
+        }
         if (nguoi.vaiTro != "khach") {
             taiKhoan = taiKhoan + '<a href="quantri.html">QUẢN TRỊ</a><span class="sep"></span>';
         }
         taiKhoan = taiKhoan + '<a href="#" onclick="dangXuat(); return false;">ĐĂNG XUẤT</a>';
     }
     datHTML("jb-tk", taiKhoan);
-    if (duocMuaHang() == false) {                  // nhân viên / quản trị không có giỏ hàng
+    var mega = document.getElementsByClassName("jb-mega");       // menu Thực đơn vẽ theo danh mục hiện có
+    if (mega.length > 0) {
+        var dm = layDanhMuc();
+        var menu = "";
+        for (var i = 0; i < dm.length; i++) {
+            menu = menu + '<a href="thucdon.html?cat=' + encodeURIComponent(dm[i].ma) + '"><img src="' + maHoaChu(dm[i].anh || "") + '" alt="" onerror="this.style.visibility=\'hidden\'">' + maHoaChu(dm[i].ten) + '</a>';
+        }
+        mega[0].innerHTML = menu;
+    }
+    if (duocMuaHang() == false) {                  // nhân viên / quản trị không có giỏ hàng, không có "Đơn hàng của tôi"
         layId("jb-gio").style.display = "none";
+        var lk = document.querySelectorAll('.jb-foot a[href="donhang.html"]');
+        for (var j = 0; j < lk.length; j++) {
+            lk[j].parentNode.style.display = "none";
+        }
     }
     capNhatSoLuongGio();
 }
