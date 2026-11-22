@@ -13,6 +13,7 @@ Mở `html/trangchu.html` bằng trình duyệt (hoặc `index.html`, hoặc Liv
 | Đơn hàng của tôi | donhang.html | donhang.css | donhang.js |
 | Khuyến mãi / Cửa hàng / Liên hệ | khuyenmai, cuahang, lienhe | (cùng tên) | (cùng tên) |
 | Tin tức / Dịch vụ | tintuc.html, dichvu.html | (cùng tên) | không có (trang tĩnh, dùng chung.js) |
+| Tài khoản (hồ sơ, đổi mật khẩu) | taikhoan.html | (xem html) | taikhoan.js |
 | Quản trị | quantri.html | quantri.css | quantri.js |
 
 - `css/chung.css`: giao diện dùng chung (lưới, nút, biểu mẫu, header, footer, thẻ món ăn, hộp thoại).
@@ -26,6 +27,9 @@ Mở `html/trangchu.html` bằng trình duyệt (hoặc `index.html`, hoặc Liv
 
 ## Mã giảm giá thử
 `JOLLY10` (giảm 10% đơn từ 100.000đ), `FREESHIP` (miễn phí giao, đơn từ 150.000đ), `WELCOME20` (giảm 20.000đ, đơn từ 80.000đ)
+
+## Tính năng mới (xem NHAT_KY_RA_SOAT.md mục G)
+Quên mật khẩu (email + SĐT đã đăng ký), đổi mật khẩu/hồ sơ, đặt lại đơn cũ, phí giao theo khu vực (15k/25k/35k), mã KM có số lượt tối đa và sửa được, quản lý danh mục, tạo tài khoản nhân viên/quản trị + phân quyền, ẩn/xóa đánh giá.
 
 ## Ghi chú
 - Chưa có back-end: dữ liệu lưu trong localStorage của trình duyệt. Muốn xóa dữ liệu thử, xóa site data của trang.
