@@ -46,14 +46,6 @@ function bamMuaNgay() {
 }
 
 // 4.3 -> "★★★★☆"
-function veSao(diem) {
-    var chu = "";
-    for (var i = 1; i <= 5; i++) {
-        chu = chu + (i <= Math.round(diem) ? "★" : "☆");
-    }
-    return chu;
-}
-
 function veThongTinMon() {
     var mon = monDangXem;
     var dm = timDanhMuc(mon.danhMuc);
@@ -76,6 +68,7 @@ function veThongTinMon() {
 
 // Vẽ điểm trung bình và danh sách đánh giá
 function veDanhGia() {
+    var nguoiDG = layNguoiDangNhap();
     var ds = layDanhGia(monDangXem.id);
     var tong = 0;
     for (var i = 0; i < ds.length; i++) {
@@ -91,9 +84,22 @@ function veDanhGia() {
     var html = "";
     for (var k = 0; k < ds.length; k++) {
         html = html + '<div class="box"><b>' + maHoaChu(ds[k].ten) + '</b> <span class="stars">' + veSao(ds[k].soSao) + '</span> ' +
-            '<small class="muted">' + new Date(ds[k].ngay).toLocaleDateString("vi-VN") + '</small><div>' + maHoaChu(ds[k].noiDung) + '</div></div>';
+            '<small class="muted">' + new Date(ds[k].ngay).toLocaleDateString("vi-VN") + '</small>' +
+            (nguoiDG != null && nguoiDG.email == ds[k].email ? ' <a href="#" class="nho" onclick="bamXoaDanhGia(); return false;">Xóa đánh giá của tôi</a>' : '') +
+            '<div>' + maHoaChu(ds[k].noiDung) + '</div></div>';
     }
     datHTML("reviews", html);
+}
+
+// Khách xóa đánh giá của chính mình
+function bamXoaDanhGia() {
+    var nguoi = layNguoiDangNhap();
+    if (nguoi != null && confirm("Xóa đánh giá của bạn về món này?")) {
+        xoaDanhGia(monDangXem.id, nguoi.email);
+        veDanhGia();
+        veKhungDanhGia();
+        thongBao("Đã xóa đánh giá");
+    }
 }
 
 // Khách bấm "Gửi đánh giá"
