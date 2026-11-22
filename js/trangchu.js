@@ -74,8 +74,19 @@ function chonHinhThuc(hinhThuc) {
     location.href = "thucdon.html";
 }
 
+// Dải danh mục vẽ theo danh mục hiện có (quản trị viên thêm/sửa được)
+function veDaiDanhMuc() {
+    var dm = layDanhMuc();
+    var html = "";
+    for (var i = 0; i < dm.length; i++) {
+        html = html + '<a class="cat-chip" href="thucdon.html?cat=' + encodeURIComponent(dm[i].ma) + '"><img src="' + maHoaChu(dm[i].anh || "") + '" alt="" onerror="this.style.visibility=\'hidden\'">' + maHoaChu(dm[i].ten) + '</a>';
+    }
+    datHTML("catStrip", html);
+}
+
 function khoiTaoTrangChu() {
     capNhatDauTrang();
+    veDaiDanhMuc();
     khoiTaoBanner();
     veMonBanChay();
     veKhuyenMai();

@@ -3,8 +3,14 @@
 var danhMucDangXem = "";      // mã danh mục lấy từ địa chỉ (?cat=...), rỗng = tất cả
 var tatCaMon = [];
 
-// Các tab danh mục viết sẵn trong html; JS chỉ tô đậm tab đang xem (so với ?cat=... trên địa chỉ)
+// Vẽ các tab theo danh mục hiện có rồi tô đậm tab đang xem (so với ?cat=... trên địa chỉ)
 function danhDauTab() {
+    var dm = layDanhMuc();
+    var html = '<a href="thucdon.html" data-cat="">Tất cả</a>';
+    for (var d = 0; d < dm.length; d++) {
+        html = html + '<a href="thucdon.html?cat=' + encodeURIComponent(dm[d].ma) + '" data-cat="' + maHoaChu(dm[d].ma) + '">' + maHoaChu(dm[d].ten) + '</a>';
+    }
+    layId("tabs").innerHTML = html;
     var cacTab = layId("tabs").getElementsByTagName("a");
     for (var i = 0; i < cacTab.length; i++) {
         if (cacTab[i].getAttribute("data-cat") == danhMucDangXem) {
@@ -47,7 +53,7 @@ function locMon() {
 
     var tieuDe = "Tất cả món";
     if (danhMucDangXem != "") {
-        tieuDe = timDanhMuc(danhMucDangXem).ten;
+        tieuDe = timDanhMuc(danhMucDangXem) ? timDanhMuc(danhMucDangXem).ten : "Thực đơn";
     }
     datChu("ttl", tieuDe);
     datChu("cnt", ketQua.length + " món");
