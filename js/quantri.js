@@ -11,7 +11,7 @@ var VAI_TRO = { quantri: "Quản trị viên", nhanvien: "Nhân viên", khach: "
 
 // Danh sách tab. Nhân viên KHÔNG được xem Tổng quan, Khuyến mãi, Người dùng (BR08)
 function layDanhSachTab() {
-    var tatCa = [["dash", "Tổng quan", true], ["orders", "Đơn hàng", false], ["products", "Món ăn", false], ["promos", "Khuyến mãi", true], ["users", "Người dùng", true], ["feedback", "Góp ý", false]];
+    var tatCa = [["dash", "Tổng quan", true], ["orders", "Đơn hàng", false], ["products", "Món ăn", false], ["promos", "Khuyến mãi", true], ["users", "Người dùng", true], ["categories", "Danh mục", true], ["reviews", "Đánh giá", true], ["feedback", "Góp ý", false]];
     var kq = [];
     for (var i = 0; i < tatCa.length; i++) {
         if (tatCa[i][2] == false || laQuanTri) {
@@ -52,6 +52,8 @@ function veTrang() {
     else if (tabDangXem == "products") { veMonAnQT(); }
     else if (tabDangXem == "promos") { veKhuyenMaiQT(); }
     else if (tabDangXem == "users") { veNguoiDungQT(); }
+    else if (tabDangXem == "categories") { veDanhMucQT(); }
+    else if (tabDangXem == "reviews") { veDanhGiaQT(); }
     else if (tabDangXem == "feedback") { veGopYQT(); }
 }
 
@@ -258,7 +260,7 @@ function moChiTietDon(ma) {
     datChu("omT", "Đơn hàng #" + o.ma);
     datHTML("omB",
         veTienTrinh(o) + '<p class="tt-mota">' + moTaTrangThai(o) + ' <span class="muted nho">(đặt ' + thoiGianTruoc(o.ngay) + ')</span></p>' +
-        '<p><span class="status st-' + o.trangThai + '">' + ICON_TT[o.trangThai] + ' ' + TRANG_THAI[o.trangThai] + '</span> · ' + (o.hinhThuc == "den_lay" ? "Đến lấy" : "Giao tận nơi") + ' · ' + (HINH_THUC_TT[o.thanhToan] || o.thanhToan) + ' · <b>' + (daThanhToan(o) ? "Đã thanh toán" : "Chưa thanh toán") + '</b></p>' +
+        '<p><span class="status st-' + o.trangThai + '">' + ICON_TT[o.trangThai] + ' ' + TRANG_THAI[o.trangThai] + '</span> · ' + (o.hinhThuc == "den_lay" ? "Đến lấy" : "Giao tận nơi" + (o.khuVuc ? " (" + maHoaChu(o.khuVuc) + ")" : "")) + ' · ' + (HINH_THUC_TT[o.thanhToan] || o.thanhToan) + ' · <b>' + (daThanhToan(o) ? "Đã thanh toán" : "Chưa thanh toán") + '</b></p>' +
         '<p>Người nhận: <b>' + maHoaChu(o.ten) + '</b> – ' + maHoaChu(o.sdt) + '<br>Địa chỉ: ' + maHoaChu(o.diaChi) + (o.ghiChu ? "<br>Ghi chú: " + maHoaChu(o.ghiChu) : "") + '</p>' + dong +
         '<div class="sum-line"><span>Phí giao hàng</span><span>' + dinhDangTien(o.phiGiao) + '</span></div>' +
         '<div class="sum-line"><span>Giảm giá' + (o.maKM ? " (" + maHoaChu(o.maKM) + ")" : "") + '</span><span>-' + dinhDangTien(o.giamGia) + '</span></div>' +
@@ -423,6 +425,8 @@ function xoaMonQT(id) {
 }
 
 /* ===== KHUYẾN MÃI ===== */
+var kmDangSua = 0;           // id mã đang sửa (0 = đang thêm mã mới)
+
 function veKhuyenMaiQT() {
     var ds = layKhuyenMai(true);
     var hang = "";
@@ -432,15 +436,43 @@ function veKhuyenMaiQT() {
         if (p.loai == "phan_tram") { giaTri = p.giaTri + "%"; }
         else if (p.loai == "so_tien") { giaTri = dinhDangTien(p.giaTri); }
         var hanDung = (p.tuNgay || p.denNgay) ? (p.tuNgay || "…") + " → " + (p.denNgay || "…") : "Không giới hạn";
-        hang = hang + '<tr><td><span class="code">' + maHoaChu(p.ma) + '</span></td><td>' + maHoaChu(p.tieuDe) + (p.donDau ? ' <span class="nhan-do">Đơn đầu</span>' : '') + '</td><td>' + LOAI_KM[p.loai] + '</td><td>' + giaTri + '</td><td>' + dinhDangTien(p.toiThieu) + '</td><td>' + hanDung + '</td>' +
-            '<td class="nowrap"><button class="btn-line pt" onclick="batTatKM(' + p.id + ')">' + (p.dangBan ? "Tắt" : "Bật") + '</button> <button class="btn-line pd2" onclick="xoaKM(' + p.id + ')">Xóa</button></td></tr>';
+        var luot = soLuotDaDung(p.ma) + (p.luotToiDa > 0 ? " / " + p.luotToiDa : " / không giới hạn");
+        hang = hang + '<tr><td><span class="code">' + maHoaChu(p.ma) + '</span></td><td>' + maHoaChu(p.tieuDe) + (p.donDau ? ' <span class="nhan-do">Đơn đầu</span>' : '') + '</td><td>' + LOAI_KM[p.loai] + '</td><td>' + giaTri + '</td><td>' + dinhDangTien(p.toiThieu) + '</td><td>' + hanDung + '</td><td>' + luot + '</td>' +
+            '<td class="nowrap"><button class="btn-line pt" onclick="batTatKM(' + p.id + ')">' + (p.dangBan ? "Tắt" : "Bật") + '</button> <button class="btn-line ed" onclick="suaKM(' + p.id + ')">Sửa</button> <button class="btn-line pd2" onclick="xoaKM(' + p.id + ')">Xóa</button></td></tr>';
     }
-    datHTML("view", '<div class="box mb3"><h6 style="font-weight:bold">Thêm mã giảm giá</h6><div class="form-km"><input id="n-t" class="o-nhap" placeholder="Tên chương trình"><input id="n-c" class="o-nhap" placeholder="MÃ">' +
+    datHTML("view", '<div class="box mb3"><h6 style="font-weight:bold" id="n-tt">Thêm mã giảm giá</h6><div class="form-km"><input id="n-t" class="o-nhap" placeholder="Tên chương trình"><input id="n-c" class="o-nhap" placeholder="MÃ">' +
         '<select id="n-y" class="o-nhap"><option value="phan_tram">Giảm %</option><option value="so_tien">Giảm tiền</option><option value="mien_phi_ship">Miễn phí giao</option></select>' +
-        '<input id="n-v" class="o-nhap" placeholder="Giá trị"><input id="n-m" class="o-nhap" placeholder="Đơn tối thiểu"><input id="n-d1" class="o-nhap" type="date" title="Từ ngày"><input id="n-d2" class="o-nhap" type="date" title="Đến ngày"><button class="btn-jb" id="n-a" onclick="themKM()">+</button></div><div class="invalid-msg" id="n-e"></div></div>' +
-        '<div class="tbl"><table class="bang"><thead><tr><th>Mã</th><th>Chương trình</th><th>Loại</th><th>Giá trị</th><th>Tối thiểu</th><th>Hạn dùng</th><th></th></tr></thead><tbody>' + hang + '</tbody></table></div>');
+        '<input id="n-v" class="o-nhap" placeholder="Giá trị"><input id="n-m" class="o-nhap" placeholder="Đơn tối thiểu"><input id="n-d1" class="o-nhap" type="date" title="Từ ngày"><input id="n-d2" class="o-nhap" type="date" title="Đến ngày"><input id="n-l" class="o-nhap" placeholder="Lượt tối đa (trống = không giới hạn)" title="Số lần mã được dùng tối đa trên toàn hệ thống"><button class="btn-jb" id="n-a" onclick="themKM()">+</button></div><div class="invalid-msg" id="n-e"></div></div>' +
+        '<div class="tbl"><table class="bang"><thead><tr><th>Mã</th><th>Chương trình</th><th>Loại</th><th>Giá trị</th><th>Tối thiểu</th><th>Hạn dùng</th><th>Lượt dùng</th><th></th></tr></thead><tbody>' + hang + '</tbody></table></div>');
+    kmDangSua = 0;
 }
 
+// Đưa mã cần sửa lên biểu mẫu; bấm lưu sẽ cập nhật mã đó (mã code không đổi được)
+function suaKM(id) {
+    if (laQuanTri == false) {
+        return;
+    }
+    var ds = layKhuyenMai(true);
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].id == id) {
+            kmDangSua = id;
+            datChu("n-tt", "Sửa mã giảm giá " + ds[i].ma);
+            layId("n-t").value = ds[i].tieuDe;
+            layId("n-c").value = ds[i].ma;
+            layId("n-c").disabled = true;
+            layId("n-y").value = ds[i].loai;
+            layId("n-v").value = ds[i].giaTri;
+            layId("n-m").value = ds[i].toiThieu;
+            layId("n-d1").value = ds[i].tuNgay || "";
+            layId("n-d2").value = ds[i].denNgay || "";
+            layId("n-l").value = ds[i].luotToiDa > 0 ? ds[i].luotToiDa : "";
+            layId("n-a").textContent = "Lưu";
+            window.scrollTo(0, 0);
+        }
+    }
+}
+
+// Thêm mã mới, hoặc lưu thay đổi nếu đang ở chế độ sửa
 function themKM() {
     if (laQuanTri == false) {
         return;
@@ -450,13 +482,14 @@ function themKM() {
     var loai = layId("n-y").value;
     var giaTri = parseInt(layId("n-v").value, 10) || 0;
     var toiThieu = parseInt(layId("n-m").value, 10) || 0;
+    var luotToiDa = parseInt(layId("n-l").value, 10) || 0;
     var ds = layKhuyenMai(true);
     if (tieuDe == "" || ma == "") {
         datChu("n-e", "Nhập tên chương trình và mã.");
         return;
     }
     for (var i = 0; i < ds.length; i++) {
-        if (ds[i].ma == ma) {
+        if (ds[i].ma == ma && ds[i].id != kmDangSua) {
             datChu("n-e", "Mã đã tồn tại.");
             return;
         }
@@ -475,7 +508,22 @@ function themKM() {
         datChu("n-e", "Ngày kết thúc phải sau ngày bắt đầu.");
         return;
     }
-    ds.push({ id: Date.now(), tieuDe: tieuDe, ma: ma, loai: loai, giaTri: giaTri, toiThieu: toiThieu, moTa: tieuDe, tuNgay: tuNgay, denNgay: denNgay, dangBan: true });
+    if (kmDangSua != 0) {
+        for (var k = 0; k < ds.length; k++) {
+            if (ds[k].id == kmDangSua) {
+                ds[k].tieuDe = tieuDe;
+                ds[k].moTa = tieuDe;
+                ds[k].loai = loai;
+                ds[k].giaTri = giaTri;
+                ds[k].toiThieu = toiThieu;
+                ds[k].tuNgay = tuNgay;
+                ds[k].denNgay = denNgay;
+                ds[k].luotToiDa = luotToiDa;
+            }
+        }
+    } else {
+        ds.push({ id: Date.now(), tieuDe: tieuDe, ma: ma, loai: loai, giaTri: giaTri, toiThieu: toiThieu, moTa: tieuDe, tuNgay: tuNgay, denNgay: denNgay, luotToiDa: luotToiDa, dangBan: true });
+    }
     luuKhuyenMai(ds);
     veKhuyenMaiQT();
 }
@@ -508,20 +556,57 @@ function xoaKM(id) {
     }
 }
 
-/* ===== NGƯỜI DÙNG (khóa / mở khóa) ===== */
+/* ===== NGƯỜI DÙNG: thêm tài khoản nội bộ, phân quyền, khóa / mở khóa, đặt lại mật khẩu ===== */
 function veNguoiDungQT() {
     var ds = layNguoiDung();
     var hang = "";
     for (var i = 0; i < ds.length; i++) {
         var u = ds[i];
         var nut = "";
-        if (u.id != nguoiQT.id && u.vaiTro != "quantri") {      // không tự khóa mình, không khóa quản trị viên khác
-            nut = '<button class="btn-line lk" onclick="khoaNguoiDung(' + u.id + ')">' + (u.biKhoa ? "Mở khóa" : "Khóa") + '</button>';
+        var vaiTro = VAI_TRO[u.vaiTro];
+        if (u.id != nguoiQT.id) {                                 // không tự khóa / đổi quyền của chính mình
+            var opt = "";
+            for (var v in VAI_TRO) {
+                opt = opt + '<option value="' + v + '"' + (v == u.vaiTro ? " selected" : "") + '>' + VAI_TRO[v] + '</option>';
+            }
+            vaiTro = '<select class="o-nhap vt" onchange="doiVaiTroQT(' + u.id + ', this.value)">' + opt + '</select>';
+            nut = '<button class="btn-line dm" onclick="datLaiMatKhauQT(' + u.id + ')">Đặt lại MK</button> ';
+            if (u.vaiTro != "quantri") {                          // không khóa quản trị viên khác
+                nut = nut + '<button class="btn-line lk" onclick="khoaNguoiDung(' + u.id + ')">' + (u.biKhoa ? "Mở khóa" : "Khóa") + '</button>';
+            }
         }
-        hang = hang + '<tr><td>' + maHoaChu(u.hoTen) + '</td><td>' + maHoaChu(u.email) + '</td><td>' + maHoaChu(u.sdt) + '</td><td>' + VAI_TRO[u.vaiTro] + '</td>' +
-            '<td><span class="status ' + (u.biKhoa ? "st-giao_that_bai" : "st-da_giao") + '">' + (u.biKhoa ? "Đã khóa" : "Hoạt động") + '</span></td><td>' + nut + '</td></tr>';
+        hang = hang + '<tr><td>' + maHoaChu(u.hoTen) + '</td><td>' + maHoaChu(u.email) + '</td><td>' + maHoaChu(u.sdt) + '</td><td>' + vaiTro + '</td>' +
+            '<td><span class="status ' + (u.biKhoa ? "st-giao_that_bai" : "st-da_giao") + '">' + (u.biKhoa ? "Đã khóa" : "Hoạt động") + '</span></td><td class="nowrap">' + nut + '</td></tr>';
     }
-    datHTML("view", '<div class="tbl"><table class="bang"><thead><tr><th>Họ tên</th><th>Email</th><th>SĐT</th><th>Vai trò</th><th>Trạng thái</th><th></th></tr></thead><tbody>' + hang + '</tbody></table></div>');
+    datHTML("view", '<div class="box mb3"><h6 style="font-weight:bold">Thêm tài khoản nhân viên / quản trị viên</h6><div class="form-tk">' +
+        '<input id="u-n" class="o-nhap" placeholder="Họ và tên"><input id="u-e" class="o-nhap" placeholder="Email"><input id="u-t" class="o-nhap" placeholder="Số điện thoại"><input id="u-p" class="o-nhap" type="password" placeholder="Mật khẩu (từ 6 ký tự)">' +
+        '<select id="u-v" class="o-nhap"><option value="nhanvien">Nhân viên</option><option value="quantri">Quản trị viên</option></select><button class="btn-jb" onclick="themTaiKhoanQT()">+</button></div><div class="invalid-msg" id="u-err"></div></div>' +
+        '<div class="tbl"><table class="bang"><thead><tr><th>Họ tên</th><th>Email</th><th>SĐT</th><th>Vai trò</th><th>Trạng thái</th><th></th></tr></thead><tbody>' + hang + '</tbody></table></div>');
+}
+
+function themTaiKhoanQT() {
+    var kq = taoTaiKhoanNoiBo(layGiaTri("u-n"), layGiaTri("u-e"), layGiaTri("u-t"), layId("u-p").value, layId("u-v").value);
+    if (kq.ok) {
+        veNguoiDungQT();
+        thongBao("Đã tạo tài khoản");
+    } else {
+        datChu("u-err", kq.thongBao);
+    }
+}
+
+function doiVaiTroQT(id, vaiTro) {
+    if (doiVaiTro(id, vaiTro)) {
+        thongBao("Đã đổi vai trò");
+    }
+    veNguoiDungQT();
+}
+
+function datLaiMatKhauQT(id) {
+    var mk = prompt("Nhập mật khẩu mới cho tài khoản này (từ 6 ký tự):");
+    if (mk == null) {
+        return;
+    }
+    thongBao(datLaiMatKhauNguoiDung(id, mk) ? "Đã đặt lại mật khẩu" : "Mật khẩu phải từ 6 ký tự");
 }
 
 function khoaNguoiDung(id) {
@@ -536,6 +621,133 @@ function khoaNguoiDung(id) {
     }
     luuNguoiDung(ds);
     veNguoiDungQT();
+}
+
+/* ===== DANH MỤC (quản trị viên thêm / sửa / xóa) ===== */
+var dmDangSua = "";          // mã danh mục đang sửa ("" = đang thêm)
+
+function veDanhMucQT() {
+    var ds = layDanhMuc();
+    var mon = layMonAn(true);
+    var hang = "";
+    for (var i = 0; i < ds.length; i++) {
+        var dem = 0;
+        for (var j = 0; j < mon.length; j++) {
+            if (mon[j].danhMuc == ds[i].ma) {
+                dem = dem + 1;
+            }
+        }
+        hang = hang + '<tr><td><span class="code">' + maHoaChu(ds[i].ma) + '</span></td><td><b>' + maHoaChu(ds[i].ten) + '</b></td><td>' + dem + ' món</td>' +
+            '<td class="nowrap"><button class="btn-line ed" onclick="suaDanhMuc(\'' + ds[i].ma + '\')">Sửa</button> <button class="btn-line dl" onclick="xoaDanhMuc(\'' + ds[i].ma + '\')">Xóa</button></td></tr>';
+    }
+    datHTML("view", '<div class="box mb3"><h6 style="font-weight:bold" id="dm-tt">Thêm danh mục</h6><div class="form-dm">' +
+        '<input id="dm-t" class="o-nhap" placeholder="Tên danh mục"><input id="dm-a" class="o-nhap" placeholder="Đường dẫn hình ảnh (tùy chọn)"><button class="btn-jb" id="dm-b" onclick="luuDanhMucQT()">+</button></div><div class="invalid-msg" id="dm-e"></div></div>' +
+        '<div class="tbl"><table class="bang"><thead><tr><th>Mã</th><th>Tên danh mục</th><th>Số món</th><th></th></tr></thead><tbody>' + hang + '</tbody></table></div>');
+    dmDangSua = "";
+}
+
+// Mã danh mục sinh từ tên: bỏ dấu, chữ thường, nối bằng dấu gạch ngang
+function taoMaDanhMuc(ten) {
+    var ma = ten.toLowerCase().replace(/đ/g, "d").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    return ma == "" ? "dm-" + Date.now() : ma;
+}
+
+function suaDanhMuc(ma) {
+    var dm = laQuanTri ? timDanhMuc(ma) : null;
+    if (dm != null) {
+        dmDangSua = ma;
+        datChu("dm-tt", "Sửa danh mục " + dm.ten);
+        layId("dm-t").value = dm.ten;
+        layId("dm-a").value = dm.anh || "";
+        layId("dm-b").textContent = "Lưu";
+    }
+}
+
+function luuDanhMucQT() {
+    if (laQuanTri == false) {
+        return;
+    }
+    var ten = layGiaTri("dm-t");
+    if (ten == "") {
+        datChu("dm-e", "Nhập tên danh mục.");
+        return;
+    }
+    var ds = layDanhMuc();
+    for (var i = 0; i < ds.length; i++) {
+        if (ds[i].ten.toLowerCase() == ten.toLowerCase() && ds[i].ma != dmDangSua) {
+            datChu("dm-e", "Tên danh mục đã tồn tại.");
+            return;
+        }
+    }
+    if (dmDangSua != "") {
+        for (var k = 0; k < ds.length; k++) {
+            if (ds[k].ma == dmDangSua) {
+                ds[k].ten = ten;
+                ds[k].anh = layGiaTri("dm-a");
+            }
+        }
+    } else {
+        var ma = taoMaDanhMuc(ten);
+        while (timDanhMuc(ma) != null) {
+            ma = ma + "-2";
+        }
+        ds.push({ ma: ma, ten: ten, anh: layGiaTri("dm-a") });
+    }
+    luuDanhMuc(ds);
+    veDanhMucQT();
+}
+
+// Chỉ xóa được danh mục không còn món nào
+function xoaDanhMuc(ma) {
+    if (laQuanTri == false) {
+        return;
+    }
+    var mon = layMonAn(true);
+    for (var i = 0; i < mon.length; i++) {
+        if (mon[i].danhMuc == ma) {
+            thongBao("Không thể xóa: danh mục còn món ăn. Hãy chuyển hoặc xóa các món trước.");
+            return;
+        }
+    }
+    if (confirm("Xóa danh mục này?")) {
+        var con = [];
+        var ds = layDanhMuc();
+        for (var k = 0; k < ds.length; k++) {
+            if (ds[k].ma != ma) {
+                con.push(ds[k]);
+            }
+        }
+        luuDanhMuc(con);
+        veDanhMucQT();
+    }
+}
+
+/* ===== ĐÁNH GIÁ (kiểm duyệt: ẩn / hiện / xóa đánh giá vi phạm) ===== */
+function veDanhGiaQT() {
+    var ds = docDuLieu("jb_danhGia", []);
+    var hang = "";
+    for (var i = 0; i < ds.length; i++) {
+        var mon = timMon(ds[i].idMon);
+        hang = hang + '<tr><td class="nowrap">' + new Date(ds[i].ngay).toLocaleDateString("vi-VN") + '</td><td>' + maHoaChu(mon ? mon.ten : "Món #" + ds[i].idMon) + '</td><td>' + maHoaChu(ds[i].ten) + '</td><td class="stars">' + veSao(ds[i].soSao) + '</td><td>' + maHoaChu(ds[i].noiDung) + '</td>' +
+            '<td><span class="status ' + (ds[i].an ? "st-da_huy" : "st-da_giao") + '">' + (ds[i].an ? "Đã ẩn" : "Hiển thị") + '</span></td>' +
+            '<td class="nowrap"><button class="btn-line" onclick="anHienDanhGiaQT(' + ds[i].idMon + ', \'' + maHoaChu(ds[i].email) + '\')">' + (ds[i].an ? "Hiện" : "Ẩn") + '</button> <button class="btn-line dl" onclick="xoaDanhGiaQT(' + ds[i].idMon + ', \'' + maHoaChu(ds[i].email) + '\')">Xóa</button></td></tr>';
+    }
+    if (hang == "") {
+        hang = '<tr><td colspan="7" class="text-center muted" style="padding:1.5rem">Chưa có đánh giá nào.</td></tr>';
+    }
+    datHTML("view", '<div class="tbl"><table class="bang"><thead><tr><th>Ngày</th><th>Món</th><th>Khách</th><th>Số sao</th><th>Nội dung</th><th>Trạng thái</th><th></th></tr></thead><tbody>' + hang + '</tbody></table></div>');
+}
+
+function anHienDanhGiaQT(idMon, email) {
+    anHienDanhGia(idMon, email);
+    veDanhGiaQT();
+}
+
+function xoaDanhGiaQT(idMon, email) {
+    if (confirm("Xóa đánh giá này?")) {
+        xoaDanhGia(idMon, email);
+        veDanhGiaQT();
+    }
 }
 
 /* ===== GÓP Ý CỦA KHÁCH (gửi từ khung "Trò chuyện cùng Jolly", lưu ở khóa jb_lienHe) ===== */
