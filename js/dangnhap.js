@@ -25,6 +25,21 @@ function chuyenTab(tab) {
     }
     layId("fup").style.display = tab == "up" ? "" : "none";
     layId("fin").style.display = tab == "in" ? "" : "none";
+    layId("fqm").style.display = tab == "qmk" ? "" : "none";
+}
+
+// Quên mật khẩu: xác minh bằng email + số điện thoại, đúng thì đặt mật khẩu mới
+function xuLyQuenMatKhau(e) {
+    e.preventDefault();
+    var kq = datLaiMatKhauQuen(layGiaTri("qm-e"), layGiaTri("qm-t"), layId("qm-p").value);
+    if (kq.ok) {
+        chuyenTab("in");
+        layId("li-e").value = layGiaTri("qm-e");
+        datChu("li-err", "");
+        thongBao("Đã đặt lại mật khẩu, hãy đăng nhập bằng mật khẩu mới.");
+    } else {
+        datChu("qm-err", kq.thongBao);
+    }
 }
 
 function xuLyDangNhap(e) {
@@ -77,4 +92,7 @@ function khoiTaoDangNhap() {
     }
     layId("fin").onsubmit = xuLyDangNhap;
     layId("fup").onsubmit = xuLyDangKy;
+    layId("fqm").onsubmit = xuLyQuenMatKhau;
+    layId("quenMK").onclick = function (e) { e.preventDefault(); chuyenTab("qmk"); };
+    layId("veDangNhap").onclick = function (e) { e.preventDefault(); chuyenTab("in"); };
 }
